@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.MySplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_whatsapp</item>
+        <item name="postSplashScreenTheme">@style/Theme.WhatsappClone</item>
+    </style>
+
+    <style name="Theme.WhatsappClone" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
