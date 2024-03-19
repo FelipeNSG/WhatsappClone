@@ -13,14 +13,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.whatsappclone.data.actualUser
-import com.example.whatsappclone.navigation.AppScreen
-
-//TODO(REMOVE navController)
-
+//TODO(REMOVE navController) DONE
+typealias CallbackNavControllerToHomeScreen = () -> Unit
+typealias CallbackNavControllerToRegisterScreen = () -> Unit
 @Composable
-fun LoginScreen(navController: NavController, ) {
+fun LoginScreen(
+    callbackNavControllerNavigationToHomeScreen: CallbackNavControllerToHomeScreen,
+    callbackNavControllerNavigationToRegisterScreen: CallbackNavControllerToRegisterScreen
+) {
     val userCorrect = remember {
         mutableStateOf(true)
     }
@@ -52,7 +53,7 @@ fun LoginScreen(navController: NavController, ) {
             onClick = {
               /*  if (userLog.value.length > 1 && userLog.value.toLong() in listUsers.map { it.numberPhone } ) {
                     userCorrect.value = true*/
-                navController.navigate(route = AppScreen.HomeScreen.route)
+                callbackNavControllerNavigationToHomeScreen.invoke()
                 actualUser(userLog.value.toLong())
             }
         ) {
@@ -64,7 +65,7 @@ fun LoginScreen(navController: NavController, ) {
             color = Color.Gray,
             fontSize = 20.sp,
             modifier = Modifier.clickable {
-                navController.navigate(route = AppScreen.RegisterScreen.route)
+                callbackNavControllerNavigationToRegisterScreen.invoke()
             }
         )
     }

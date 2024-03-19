@@ -39,24 +39,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import coil.compose.SubcomposeAsyncImage
 import com.example.whatsappclone.components.AppBarHomeScreen
 import com.example.whatsappclone.components.UserDetails
 import com.example.whatsappclone.components.UserImage
 import com.example.whatsappclone.domain.ChatListDataObject
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
-import com.example.whatsappclone.utils.FireStoreManager
-
 
 //TODO(REMOVE navController FROM HomeScreen AND all the others functions)
 //TODO(USE OF CALLBACKS TO COMUNICATE INNER COMPOSABLE'S WITH HomeScreen)
 //TODO(SEPARATE LOGIC FROM BUTTON ADD)
 
+typealias CallbackNavControllerNavigationToChatScreen = () -> Unit
 @Composable
-fun HomeScreen(navController: NavController, fireStoreManager: FireStoreManager) {
+fun HomeScreen(
+    viewModel: HomeViewModel,
+    callbackNavController: CallbackNavControllerNavigationToChatScreen,
+) {
+
     Scaffold(
         topBar = { AppBarHomeScreen() },
     ) { paddingValues ->
@@ -70,7 +71,7 @@ fun HomeScreen(navController: NavController, fireStoreManager: FireStoreManager)
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-                ChatsHomeScreen()
+                ChatsHomeScreen(viewModel)
             }
         }
         Box(
@@ -79,11 +80,10 @@ fun HomeScreen(navController: NavController, fireStoreManager: FireStoreManager)
                 .padding(end = 25.dp, bottom = 40.dp),
             contentAlignment = Alignment.BottomEnd,
         ) {
-            ButtonAdd(navController, fireStoreManager)
+            ButtonAdd(callbackNavController, viewModel)
         }
     }
 }
-
 
 @Composable
 fun SearchBarHomeScreen() {
@@ -141,10 +141,10 @@ fun ProfileStatus() {
     }
 }
 
-@Preview
+
 @Composable
-fun ChatsHomeScreen() {
-    val notes = userList.collectAsState(
+fun ChatsHomeScreen(homeViewModel: HomeViewModel) {
+    val notes = homeViewModel.userList.collectAsState(
         emptyList()
     )
     LazyColumn(
@@ -178,7 +178,10 @@ fun ChatListItem(chatData: ChatListDataObject) {
 }
 
 @Composable
-fun ButtonAdd(navController: NavController, fireStoreManager: FireStoreManager) {
+fun ButtonAdd(
+    callbackNavController: CallbackNavControllerNavigationToChatScreen,
+    viewModel: HomeViewModel
+) {
     val userConversation = remember {
         mutableStateOf("")
     }
@@ -252,8 +255,7 @@ fun ButtonAdd(navController: NavController, fireStoreManager: FireStoreManager) 
                     onClick = {
                         openDialog.value = false
                         textOfNote = ""
-                       fireStoreManager.consultUser(navController, userConversation.value, name.value)
-
+                       viewModel.fireStoreManager.consultUser(callbackNavController, userConversation.value, name.value)
                         /*updateFlow()*/
                     },
 

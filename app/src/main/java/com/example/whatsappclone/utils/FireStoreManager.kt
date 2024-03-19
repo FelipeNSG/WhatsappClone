@@ -1,16 +1,16 @@
 package com.example.whatsappclone.utils
 
-import androidx.navigation.NavController
 import com.example.whatsappclone.data.Conversation
 import com.example.whatsappclone.data.UserAccount
-import com.example.whatsappclone.navigation.AppScreen
+import com.example.whatsappclone.screeens.homeScreen.CallbackNavControllerNavigationToChatScreen
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-class FireStoreManager() {
+
+class FireStoreManager {
 
     private val fireStore = FirebaseFirestore.getInstance()
     suspend fun createUser(user: UserAccount) {
@@ -21,7 +21,11 @@ class FireStoreManager() {
         fireStore.collection("conversations").add(conversation).await()
     }
 
-    fun consultUser(navController: NavController, numberPhone: String, name:String){
+    fun consultUser(
+        callbackNavController: CallbackNavControllerNavigationToChatScreen,
+        numberPhone: String, name:String
+
+    ){
         fireStore.collection("users")
             .whereEqualTo("numberPhone", numberPhone.toLong())
             .get()
@@ -33,8 +37,7 @@ class FireStoreManager() {
                             println("Document doesn't exist.")
                         } else {
                             println("Document exist.")
-                            navController.navigate(route = AppScreen.ChatScreen.route){
-                            }
+                           callbackNavController.invoke()
                         }
                     }
                 } else {

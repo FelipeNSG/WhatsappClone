@@ -39,7 +39,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import coil.compose.SubcomposeAsyncImage
 import com.example.whatsappclone.components.TopAppBarChatScreen
 import com.example.whatsappclone.ui.theme.GreenButtons
@@ -47,13 +46,12 @@ import com.example.whatsappclone.ui.theme.colorBlueChat
 import com.example.whatsappclone.ui.theme.colorButtonBlue
 import com.example.whatsappclone.ui.theme.colorChatGreen
 import com.example.whatsappclone.ui.theme.colorGreyChat
-
 @Composable
-fun ChatScreen(navController: NavController) {
+fun ChatScreen(chatScreenViewModel: ChatScreenViewModel) {
     Scaffold(
         topBar = { TopAppBarChatScreen() },
         bottomBar = {
-            TextFieldChatAndAdjacentButtons()
+            TextFieldChatAndAdjacentButtons(chatScreenViewModel)
         }
     ) { paddingValues ->
         Column(
@@ -63,13 +61,13 @@ fun ChatScreen(navController: NavController) {
                 .padding(horizontal = 15.dp),
             verticalArrangement = Arrangement.spacedBy(25.dp)
         ) {
-            ChatBox()
+            ChatBox(chatScreenViewModel)
         }
     }
 }
 
 @Composable
-fun TextFieldChatAndAdjacentButtons() {
+fun TextFieldChatAndAdjacentButtons(chatScreenViewModel: ChatScreenViewModel) {
     val showButtonSend = remember {
         mutableStateOf(false)
     }
@@ -156,7 +154,7 @@ fun TextFieldChatAndAdjacentButtons() {
             IconButton(
                 modifier = Modifier.size(40.dp),
                 onClick = {
-                        sendMessage(text.value)
+                        chatScreenViewModel.sendMessage(text.value)
                 }
             ) {
                 Icon(
@@ -172,16 +170,16 @@ fun TextFieldChatAndAdjacentButtons() {
 }
 
 @Composable
-fun ChatBox() {
+fun ChatBox(chatScreenViewModel: ChatScreenViewModel) {
     LazyColumn() {
         item {
-            ChatMessageTest1()
+            ChatMessageTest1(chatScreenViewModel)
         }
     }
 }
 
 @Composable
-fun ChatMessageTest1() {
+fun ChatMessageTest1(chatScreenViewModel: ChatScreenViewModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -214,7 +212,7 @@ fun ChatMessageTest1() {
             ),
         ) {
             Text(
-                text = lisOfMessage[0],
+                text = chatScreenViewModel.lisOfMessage[0],
                 modifier = Modifier.padding(10.dp)
             )
         }
