@@ -17,6 +17,7 @@ import androidx.navigation.NavController
 import com.example.whatsappclone.data.actualUser
 import com.example.whatsappclone.navigation.AppScreen
 
+//TODO(REMOVE navController)
 
 @Composable
 fun LoginScreen(navController: NavController, ) {

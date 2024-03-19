@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
+//TODO(MOVE VARIABLES AND FUNCTIONS INSIDE CLASS)
+
 class HomeViewModel : ViewModel() {
 
 

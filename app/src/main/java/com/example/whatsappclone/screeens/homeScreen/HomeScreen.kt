@@ -51,6 +51,10 @@ import com.example.whatsappclone.ui.theme.GreenWhatsapp
 import com.example.whatsappclone.utils.FireStoreManager
 
 
+//TODO(REMOVE navController FROM HomeScreen AND all the others functions)
+//TODO(USE OF CALLBACKS TO COMUNICATE INNER COMPOSABLE'S WITH HomeScreen)
+//TODO(SEPARATE LOGIC FROM BUTTON ADD)
+
 @Composable
 fun HomeScreen(navController: NavController, fireStoreManager: FireStoreManager) {
     Scaffold(
