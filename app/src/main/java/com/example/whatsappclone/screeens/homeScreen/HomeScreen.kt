@@ -52,6 +52,7 @@ import com.example.whatsappclone.ui.theme.GreenWhatsapp
 //TODO(SEPARATE LOGIC FROM BUTTON ADD)
 
 typealias CallbackNavControllerNavigationToChatScreen = () -> Unit
+
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
@@ -80,7 +81,7 @@ fun HomeScreen(
                 .padding(end = 25.dp, bottom = 40.dp),
             contentAlignment = Alignment.BottomEnd,
         ) {
-            ButtonAdd(callbackNavController, viewModel)
+            AddContactButton(callbackNavController, viewModel)
         }
     }
 }
@@ -178,7 +179,7 @@ fun ChatListItem(chatData: ChatListDataObject) {
 }
 
 @Composable
-fun ButtonAdd(
+fun AddContactButton(
     callbackNavController: CallbackNavControllerNavigationToChatScreen,
     viewModel: HomeViewModel
 ) {
@@ -209,6 +210,26 @@ fun ButtonAdd(
         }
     }
 
+    OnClickContactAddButton(callbackNavController = callbackNavController, viewModel = viewModel)
+
+}
+
+@Composable
+fun OnClickContactAddButton(
+    callbackNavController: CallbackNavControllerNavigationToChatScreen,
+    viewModel:HomeViewModel
+) {
+    val userConversation = remember {
+        mutableStateOf("")
+    }
+    val name = remember {
+        mutableStateOf("")
+    }
+    var textOfNote by remember { mutableStateOf("") }
+
+    val openDialog = remember {
+        mutableStateOf(false)
+    }
     if (openDialog.value) {
         val scope = rememberCoroutineScope()
         AlertDialog(
@@ -255,7 +276,11 @@ fun ButtonAdd(
                     onClick = {
                         openDialog.value = false
                         textOfNote = ""
-                       viewModel.fireStore.consultUser(callbackNavController, userConversation.value, name.value)
+                        viewModel.fireStore.consultUser(
+                            callbackNavController,
+                            userConversation.value,
+                            name.value
+                        )
                         /*updateFlow()*/
                     },
 
@@ -276,6 +301,4 @@ fun ButtonAdd(
             },
         )
     }
-
 }
-
