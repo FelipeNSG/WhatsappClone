@@ -1,6 +1,7 @@
 package com.example.whatsappclone.screeens.homeScreen
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.example.whatsappclone.domain.ChatListDataObject
 import com.example.whatsappclone.utils.FireStoreManager
 import kotlinx.coroutines.CoroutineScope
@@ -11,8 +12,7 @@ import kotlinx.coroutines.launch
 
 //TODO(MOVE VARIABLES AND FUNCTIONS INSIDE CLASS)
 
-class HomeViewModel(var fireStoreManager: FireStoreManager) : ViewModel() {
-
+class HomeViewModel(val fireStore: FireStoreManager) : ViewModel() {
 
     private val scope = CoroutineScope(Dispatchers.IO)
     private var _userList = MutableSharedFlow<List<ChatListDataObject>>()
@@ -31,5 +31,13 @@ class HomeViewModel(var fireStoreManager: FireStoreManager) : ViewModel() {
     fun createChatScreen() {
 
     }
+}
 
+class MyViewModelFactory(private val fireStore: FireStoreManager) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
+            HomeViewModel(fireStore) as T
+
+        } else throw Exception("Error Factory")
+    }
 }

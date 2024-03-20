@@ -255,7 +255,7 @@ fun ButtonAdd(
                     onClick = {
                         openDialog.value = false
                         textOfNote = ""
-                       viewModel.fireStoreManager.consultUser(callbackNavController, userConversation.value, name.value)
+                       viewModel.fireStore.consultUser(callbackNavController, userConversation.value, name.value)
                         /*updateFlow()*/
                     },
 
