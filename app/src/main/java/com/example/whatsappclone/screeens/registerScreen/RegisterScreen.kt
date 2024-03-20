@@ -15,15 +15,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import com.example.whatsappclone.data.UserAccount
-import com.example.whatsappclone.navigation.AppScreen
-import com.example.whatsappclone.utils.FireStoreManager
+import com.example.whatsappclone.data.moldel.UserAccount
+import com.example.whatsappclone.screeens.loginScreen.CallbackNavControllerToHomeScreen
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun RegisterScreen(navController: NavController ,fireStoreManager: FireStoreManager) {
+fun RegisterScreen(
+    viewModel: RegisterScreenViewModel,
+    callbackNavControllerToHomeScreen: CallbackNavControllerToHomeScreen
+) {
     val scope = rememberCoroutineScope()
     val text = remember {
         mutableStateOf("")
@@ -73,10 +74,10 @@ fun RegisterScreen(navController: NavController ,fireStoreManager: FireStoreMana
         Button(
             onClick = {
                 scope.launch {
-                    fireStoreManager.createUser(
+                    viewModel.fireStore.createUser(
                         user = UserAccount(text.value.toLong())
                         )
-                    navController.navigate(route = AppScreen.HomeScreen.route)
+                   callbackNavControllerToHomeScreen.invoke()
                 }
             }
         ) {

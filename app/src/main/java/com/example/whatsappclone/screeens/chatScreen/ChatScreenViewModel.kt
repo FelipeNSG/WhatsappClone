@@ -1,7 +1,8 @@
 package com.example.whatsappclone.screeens.chatScreen
 
 import androidx.lifecycle.ViewModel
-import com.example.whatsappclone.utils.FireStoreManager
+import androidx.lifecycle.ViewModelProvider
+import com.example.whatsappclone.data.FireStoreManager
 
 
 class ChatScreenViewModel(private val fireStoreManager: FireStoreManager) : ViewModel() {
@@ -12,3 +13,11 @@ class ChatScreenViewModel(private val fireStoreManager: FireStoreManager) : View
     val lisOfMessage = mutableListOf<String>("Hola")
 }
 
+class MyViewModelFactoryChatScreen(private val fireStore: FireStoreManager) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return if (modelClass.isAssignableFrom(ChatScreenViewModel::class.java)) {
+            ChatScreenViewModel(fireStore) as T
+
+        } else throw Exception("Error Factory")
+    }
+}

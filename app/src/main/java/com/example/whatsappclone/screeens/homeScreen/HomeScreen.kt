@@ -44,7 +44,7 @@ import coil.compose.SubcomposeAsyncImage
 import com.example.whatsappclone.components.AppBarHomeScreen
 import com.example.whatsappclone.components.UserDetails
 import com.example.whatsappclone.components.UserImage
-import com.example.whatsappclone.domain.ChatListDataObject
+import com.example.whatsappclone.data.moldel.ChatListDataObject
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
 
 //TODO(REMOVE navController FROM HomeScreen AND all the others functions)

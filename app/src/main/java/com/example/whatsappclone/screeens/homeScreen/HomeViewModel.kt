@@ -2,8 +2,8 @@ package com.example.whatsappclone.screeens.homeScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.whatsappclone.domain.ChatListDataObject
-import com.example.whatsappclone.utils.FireStoreManager
+import com.example.whatsappclone.data.FireStoreManager
+import com.example.whatsappclone.data.moldel.ChatListDataObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

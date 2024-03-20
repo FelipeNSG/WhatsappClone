@@ -13,12 +13,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
-import com.example.whatsappclone.data.actualUser
+import com.example.whatsappclone.data.moldel.actualUser
+
 //TODO(REMOVE navController) DONE
 typealias CallbackNavControllerToHomeScreen = () -> Unit
 typealias CallbackNavControllerToRegisterScreen = () -> Unit
 @Composable
 fun LoginScreen(
+    loginScreenViewModel: LoginScreenViewModel,
     callbackNavControllerNavigationToHomeScreen: CallbackNavControllerToHomeScreen,
     callbackNavControllerNavigationToRegisterScreen: CallbackNavControllerToRegisterScreen
 ) {

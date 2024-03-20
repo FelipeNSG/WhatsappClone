@@ -1,7 +1,7 @@
-package com.example.whatsappclone.utils
+package com.example.whatsappclone.data
 
-import com.example.whatsappclone.data.Conversation
-import com.example.whatsappclone.data.UserAccount
+import com.example.whatsappclone.data.moldel.Conversation
+import com.example.whatsappclone.data.moldel.UserAccount
 import com.example.whatsappclone.screeens.homeScreen.CallbackNavControllerNavigationToChatScreen
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose

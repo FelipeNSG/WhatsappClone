@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.whatsappclone.domain.ChatListDataObject
+import com.example.whatsappclone.data.moldel.ChatListDataObject
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
 
 @Composable

@@ -1,6 +1,5 @@
-package com.example.whatsappclone.domain
+package com.example.whatsappclone.data.moldel
 
-import com.example.whatsappclone.data.UserAccount
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -13,7 +12,7 @@ data class ChatListDataObject(
 
 data class Message(
     val user: UserAccount,
-    val content: String? ,
+    val content: String?,
     val deliveryStatus: MessageDeliveryStatus = MessageDeliveryStatus.DELIVERED,
     val type: MessageType = MessageType.TEXT,
     val timeStamp: String = LocalDateTime.now()

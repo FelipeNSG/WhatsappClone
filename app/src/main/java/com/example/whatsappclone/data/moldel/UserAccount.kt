@@ -1,6 +1,4 @@
-package com.example.whatsappclone.data
-
-import com.example.whatsappclone.domain.Message
+package com.example.whatsappclone.data.moldel
 
 class UserAccount(
     val numberPhone: Long
@@ -9,12 +7,12 @@ class UserAccount(
 
 class ChatBoxContacts(
     val user1: UserAccount,
-    val user2 :UserAccount,
+    val user2 : UserAccount,
     val lastMessage: String
 )
 class Conversation(
     val user1: UserAccount,
-    val user2 :UserAccount,
+    val user2 : UserAccount,
     val messages: List<Message> = emptyList()
 )
 
