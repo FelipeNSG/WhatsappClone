@@ -33,7 +33,7 @@ import com.example.whatsappclone.ui.theme.fontFamilyMonserrat
 
 
 @Composable
-fun TopAppBarChatScreen() {
+fun TopAppBarChatScreen(contactName:String) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -82,7 +82,7 @@ fun TopAppBarChatScreen() {
             modifier = Modifier.padding(start = 15.dp)
         ) {
             Text(
-                text = "Adholk Abdul",
+                text = contactName,
                 fontFamily = fontFamilyMonserrat(500),
                 fontSize = 14.sp,
                 color = Color.Black,

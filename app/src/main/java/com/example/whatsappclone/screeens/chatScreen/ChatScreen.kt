@@ -46,10 +46,19 @@ import com.example.whatsappclone.ui.theme.colorBlueChat
 import com.example.whatsappclone.ui.theme.colorButtonBlue
 import com.example.whatsappclone.ui.theme.colorChatGreen
 import com.example.whatsappclone.ui.theme.colorGreyChat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 @Composable
 fun ChatScreen(chatScreenViewModel: ChatScreenViewModel) {
+   ChatScreenToRegisterNewChat(chatScreenViewModel = chatScreenViewModel)
+}
+
+@Composable
+fun ChatScreenToRegisterNewChat(chatScreenViewModel: ChatScreenViewModel){
     Scaffold(
-        topBar = { TopAppBarChatScreen() },
+        topBar = { TopAppBarChatScreen(chatScreenViewModel.userNameContactToAdd) },
         bottomBar = {
             TextFieldChatAndAdjacentButtons(chatScreenViewModel)
         }
@@ -67,11 +76,13 @@ fun ChatScreen(chatScreenViewModel: ChatScreenViewModel) {
 }
 
 @Composable
-fun TextFieldChatAndAdjacentButtons(chatScreenViewModel: ChatScreenViewModel) {
+fun TextFieldChatAndAdjacentButtons(
+    chatScreenViewModel: ChatScreenViewModel,
+) {
     val showButtonSend = remember {
         mutableStateOf(false)
     }
-    val text = rememberSaveable {
+    val message = rememberSaveable {
         mutableStateOf("")
     }
     Row(
@@ -86,7 +97,7 @@ fun TextFieldChatAndAdjacentButtons(chatScreenViewModel: ChatScreenViewModel) {
         ) {
             Icon(
                 imageVector = Icons.Filled.AddCircle,
-                contentDescription = "Buttons",
+                contentDescription = "AddButtons",
                 modifier = Modifier.size(45.dp),
                 tint = GreenButtons
             )
@@ -98,10 +109,10 @@ fun TextFieldChatAndAdjacentButtons(chatScreenViewModel: ChatScreenViewModel) {
                 .clickable {
 
                 },
-            value = text.value,
+            value = message.value,
             onValueChange = {
-                text.value = it
-                showButtonSend.value = text.value.isNotEmpty()
+                message.value = it
+                showButtonSend.value = message.value.isNotEmpty()
             },
             placeholder = {
                 Row {
@@ -127,42 +138,15 @@ fun TextFieldChatAndAdjacentButtons(chatScreenViewModel: ChatScreenViewModel) {
             )
         )
 
-        if (!showButtonSend.value) {
-            IconButton(
-                modifier = Modifier.size(40.dp),
-                onClick = { }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Mic,
-                    contentDescription = "Buttons",
-                    modifier = Modifier.size(36.dp),
-                    tint = Color.Gray
-                )
-            }
-            IconButton(
-                modifier = Modifier.size(40.dp),
-                onClick = { }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.PhotoCamera,
-                    contentDescription = "Buttons",
-                    modifier = Modifier.size(35.dp),
-                    tint = Color.Gray
-                )
-            }
-        } else {
-            IconButton(
-                modifier = Modifier.size(40.dp),
-                onClick = {
-                        chatScreenViewModel.sendMessage(text.value)
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Send,
-                    contentDescription = "Button Send",
-                    modifier = Modifier.size(35.dp),
-                    tint = GreenButtons
-                )
+        if (!showButtonSend.value){
+            ShowButtonsCameraAndMicrophone()
+
+        }else{
+            ShowSendButton(
+                chatScreenViewModel = chatScreenViewModel,
+                contentMessage = message.value
+            ){
+                message.value = it
             }
         }
 
@@ -170,10 +154,72 @@ fun TextFieldChatAndAdjacentButtons(chatScreenViewModel: ChatScreenViewModel) {
 }
 
 @Composable
+fun ShowButtonsCameraAndMicrophone(
+
+) {
+
+    IconButton(
+        modifier = Modifier.size(40.dp),
+        onClick = { }
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Mic,
+            contentDescription = "Buttons",
+            modifier = Modifier.size(36.dp),
+            tint = Color.Gray
+        )
+    }
+    IconButton(
+        modifier = Modifier.size(40.dp),
+        onClick = { }
+    ) {
+        Icon(
+            imageVector = Icons.Filled.PhotoCamera,
+            contentDescription = "Buttons",
+            modifier = Modifier.size(35.dp),
+            tint = Color.Gray
+        )
+    }
+
+}
+
+@Composable
+fun ShowSendButton(
+    chatScreenViewModel: ChatScreenViewModel,
+    contentMessage:String,
+    messageCallBack: (String) -> Unit
+) {
+    val scope = CoroutineScope(Dispatchers.IO)
+    IconButton(
+        modifier = Modifier.size(40.dp),
+        onClick = {
+            scope.launch {
+                chatScreenViewModel.createChatBox(
+                    userLog = chatScreenViewModel.userPhoneAccount,
+                    contact = chatScreenViewModel.numberContactToAdd,
+                    contactName = chatScreenViewModel.userNameContactToAdd,
+                    contentMessage = contentMessage
+                )
+            }
+            messageCallBack("")
+            chatScreenViewModel.consulterChat(chatScreenViewModel.userPhoneAccount, chatScreenViewModel.numberContactToAdd)
+        }
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Send,
+            contentDescription = "Button Send",
+            modifier = Modifier.size(35.dp),
+            tint = GreenButtons
+        )
+    }
+}
+
+@Composable
 fun ChatBox(chatScreenViewModel: ChatScreenViewModel) {
+
     LazyColumn() {
         item {
-            ChatMessageTest1(chatScreenViewModel)
+
         }
     }
 }
@@ -212,7 +258,7 @@ fun ChatMessageTest1(chatScreenViewModel: ChatScreenViewModel) {
             ),
         ) {
             Text(
-                text = chatScreenViewModel.lisOfMessage[0],
+                text = "Anything",
                 modifier = Modifier.padding(10.dp)
             )
         }
@@ -315,3 +361,4 @@ fun ChatTesting2() {
         )
     }
 }
+

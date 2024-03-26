@@ -13,11 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
-import com.example.whatsappclone.data.moldel.actualUser
 
-//TODO(REMOVE navController) DONE
-typealias CallbackNavControllerToHomeScreen = () -> Unit
+
+typealias CallbackNavControllerToHomeScreen = (String) -> Unit
 typealias CallbackNavControllerToRegisterScreen = () -> Unit
+
 @Composable
 fun LoginScreen(
     loginScreenViewModel: LoginScreenViewModel,
@@ -29,6 +29,10 @@ fun LoginScreen(
     }
     val userLog = rememberSaveable {
         mutableStateOf("")
+    }
+
+    val errorConnection = remember {
+        mutableStateOf(false)
     }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -50,13 +54,45 @@ fun LoginScreen(
                 color = Color.Red
             )
         }
+        if (errorConnection.value) {
+            Text(
+                text = "connection error",
+                color = Color.Red
+            )
+        }
 
         Button(
             onClick = {
-              /*  if (userLog.value.length > 1 && userLog.value.toLong() in listUsers.map { it.numberPhone } ) {
-                    userCorrect.value = true*/
-                callbackNavControllerNavigationToHomeScreen.invoke()
-                actualUser(userLog.value.toLong())
+                userCorrect.value = true
+                errorConnection.value = false
+                if (userLog.value.length > 1) {
+                    loginScreenViewModel.consulterUser(
+                        userLog.value,
+                    ) { requestStated ->
+                        when (requestStated) {
+                            LoginScreenViewModel.LoginStatedScreen.ErrorConnexion -> {
+                                errorConnection.value = true
+                                println("error")
+                            }
+
+                            LoginScreenViewModel.LoginStatedScreen.Loading -> {
+                                Unit
+                                println("loading")
+                            }
+
+                            LoginScreenViewModel.LoginStatedScreen.IncorrectNumber-> {
+                                userCorrect.value = false
+                                println("incorrect number")
+                            }
+
+                            LoginScreenViewModel.LoginStatedScreen.CorrectNumber-> {
+                                callbackNavControllerNavigationToHomeScreen.invoke("/${userLog.value}")
+                                println("correct")
+
+                            }
+                        }
+                    }
+                }
             }
         ) {
             Text(text = "Enter")

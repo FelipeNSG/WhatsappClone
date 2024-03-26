@@ -1,24 +1,25 @@
 package com.example.whatsappclone.data.moldel
 
 class UserAccount(
-    val numberPhone: Long
+    val numberPhone: Long,
+    val userImage: String = imageRandom()
 )
-
 
 class ChatBoxContacts(
-    val user1: UserAccount,
-    val user2 : UserAccount,
+    val chatOwner: UserAccount,
+    val contact: UserAccount,
+    val contactName:String,
     val lastMessage: String
 )
+
 class Conversation(
-    val user1: UserAccount,
-    val user2 : UserAccount,
+    val chatOwner: UserAccount,
+    val contact: UserAccount,
+    val contactName:String,
     val messages: List<Message> = emptyList()
 )
 
-
-private var _actualUser: Long = 0
-val actualUser = _actualUser
-fun actualUser(userLog: Long){
-    _actualUser = userLog
+fun imageRandom(): String {
+    val number = (200..250).random()
+    return "https://picsum.photos/id/$number/200/300"
 }

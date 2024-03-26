@@ -1,22 +1,7 @@
 package com.example.whatsappclone.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.whatsappclone.data.moldel.ChatListDataObject
-import com.example.whatsappclone.ui.theme.GreenWhatsapp
-
-@Composable
-fun UserDetails(chatData: ChatListDataObject) {
+/*@Composable
+fun UserDetails(chatData: ChatBoxObject) {
     Column(
         modifier = Modifier
             .wrapContentHeight()
@@ -31,7 +16,7 @@ fun UserDetails(chatData: ChatListDataObject) {
 }
 
 @Composable
-fun MessageHeader(chatData: ChatListDataObject) {
+fun MessageHeader(chatData: ChatBoxObject) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -43,7 +28,7 @@ fun MessageHeader(chatData: ChatListDataObject) {
             fontWeight = FontWeight.SemiBold
         )
         TextComponent(
-            value = chatData.message.timeStamp,
+            value = chatData.timeStamp,
             fontSize = 12.sp,
             color = if ((chatData.message.unreadCount ?: 0) > 0) GreenWhatsapp else Color.Gray,
             modifier = null
@@ -52,7 +37,7 @@ fun MessageHeader(chatData: ChatListDataObject) {
 }
 
 @Composable
-fun MessageSubsection(chatData: ChatListDataObject) {
+fun MessageSubsection(chatData: ChatBoxObject) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -73,7 +58,7 @@ fun MessageSubsection(chatData: ChatListDataObject) {
             }
         }
     }
-}
+}*/
 
 
 

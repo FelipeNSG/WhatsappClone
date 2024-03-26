@@ -9,31 +9,38 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.whatsappclone.data.moldel.UserAccount
 import com.example.whatsappclone.screeens.loginScreen.CallbackNavControllerToHomeScreen
-import kotlinx.coroutines.launch
-
+import com.example.whatsappclone.ui.theme.GreenWhatsapp
 
 @Composable
 fun RegisterScreen(
     viewModel: RegisterScreenViewModel,
     callbackNavControllerToHomeScreen: CallbackNavControllerToHomeScreen
 ) {
-    val scope = rememberCoroutineScope()
-    val text = remember {
+
+    val phoneNumber = remember {
         mutableStateOf("")
     }
-    val text2 = remember {
+    val phoneNumberConfirmation = remember {
         mutableStateOf("")
     }
     val numberMatch = remember {
         mutableStateOf(true)
+    }
+    val numberPhoneAlreadyExist = remember {
+        mutableStateOf(false)
+    }
+
+    val errorConnexion = remember {
+        mutableStateOf(false)
+    }
+    val numberRegisterSuccess = remember {
+        mutableStateOf(false)
     }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -44,9 +51,9 @@ fun RegisterScreen(
         )
         Spacer(modifier = Modifier.padding(bottom = 40.dp))
         TextField(
-            value = text.value,
+            value = phoneNumber.value,
             onValueChange = {
-                     text.value   = it
+                phoneNumber.value = it
             },
             placeholder = {
                 Text(text = "Enter your number phone")
@@ -55,29 +62,79 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.padding(bottom = 10.dp))
 
         TextField(
-            value = text2.value,
-            onValueChange = {text2.value = it},
+            value = phoneNumberConfirmation.value,
+            onValueChange = { phoneNumberConfirmation.value = it },
             placeholder = {
                 Text(text = "Confirm your number phone")
             }
         )
         Spacer(modifier = Modifier.padding(bottom = 5.dp))
 
-        if (
-            !numberMatch.value) {
+        if (!numberMatch.value) {
             Text(
                 text = "The phone number does not match",
                 fontSize = 15.sp,
                 color = Color.Red
             )
+
         }
+        if (numberPhoneAlreadyExist.value) {
+            Text(
+                text = "The phone number already exist",
+                fontSize = 15.sp,
+                color = Color.Red
+            )
+
+        }
+        if (errorConnexion.value) {
+            Text(
+                text = "Error of connexion",
+                fontSize = 15.sp,
+                color = Color.Red
+            )
+
+        }
+        if (numberRegisterSuccess.value) {
+            Text(
+                text = "number registered correctly",
+                fontSize = 18.sp,
+                color = GreenWhatsapp
+            )
+        }
+
         Button(
             onClick = {
-                scope.launch {
-                    viewModel.fireStore.createUser(
-                        user = UserAccount(text.value.toLong())
-                        )
-                   callbackNavControllerToHomeScreen.invoke()
+                numberPhoneAlreadyExist.value = false
+                errorConnexion.value = false
+                numberRegisterSuccess.value = false
+                numberMatch.value = true
+
+                if (phoneNumber.value != phoneNumberConfirmation.value) {
+                    numberMatch.value = false
+                }
+
+                viewModel.checkNumbersAndRegister(
+                    phoneNumber.value.toLong(),
+                    phoneNumberConfirmation.value.toLong(),
+                ) { registerStatedScreen ->
+                    when (registerStatedScreen) {
+                        RegisterScreenViewModel.RegisterStatedScreen.ErrorConnexion -> {
+                            errorConnexion.value = true
+                        }
+
+                        RegisterScreenViewModel.RegisterStatedScreen.Loading -> {
+                            Unit
+                        }
+
+                        RegisterScreenViewModel.RegisterStatedScreen.NumberExist -> {
+                            numberPhoneAlreadyExist.value = true
+                        }
+
+                        RegisterScreenViewModel.RegisterStatedScreen.NumberRegister -> {
+                            numberRegisterSuccess.value = true
+                            callbackNavControllerToHomeScreen.invoke("/${phoneNumber.value}")
+                        }
+                    }
                 }
             }
         ) {
@@ -86,3 +143,6 @@ fun RegisterScreen(
 
     }
 }
+
+
+

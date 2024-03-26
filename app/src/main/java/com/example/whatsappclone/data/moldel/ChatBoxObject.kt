@@ -3,20 +3,20 @@ package com.example.whatsappclone.data.moldel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-data class ChatListDataObject(
-    val userAccount: UserAccount,
-    val message: Message,
-    val userName: String = "USER",
-    val userImage: String = "https://picsum.photos/id/230/200/300"
+data class ChatBoxObject(
+    val userAccount1: UserAccount,
+    val userAccount2: UserAccount,
+    val messages: List<Message> = listOf(),
+    val userName: String,
 )
 
 data class Message(
-    val user: UserAccount,
+    val user: String,
     val content: String?,
     val deliveryStatus: MessageDeliveryStatus = MessageDeliveryStatus.DELIVERED,
     val type: MessageType = MessageType.TEXT,
     val timeStamp: String = LocalDateTime.now()
-        .format(DateTimeFormatter.ofPattern("MMM dd yyyy")),
+        .format(DateTimeFormatter.ofPattern("MMMM-dd-yyyy")),
     val timeHour: String = LocalDateTime.now()
         .format(DateTimeFormatter.ofPattern("HH:mm")),
     val unreadCount: Int?=null
@@ -36,3 +36,4 @@ enum class MessageType {
     VIDEO,
     IMAGE
 }
+

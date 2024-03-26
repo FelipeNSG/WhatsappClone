@@ -32,7 +32,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,23 +41,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.example.whatsappclone.components.AppBarHomeScreen
-import com.example.whatsappclone.components.UserDetails
+/*import com.example.whatsappclone.components.UserDetails*/
 import com.example.whatsappclone.components.UserImage
-import com.example.whatsappclone.data.moldel.ChatListDataObject
+import com.example.whatsappclone.data.moldel.ChatBoxObject
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
 
-//TODO(REMOVE navController FROM HomeScreen AND all the others functions)
-//TODO(USE OF CALLBACKS TO COMUNICATE INNER COMPOSABLE'S WITH HomeScreen)
-//TODO(SEPARATE LOGIC FROM BUTTON ADD)
-
-typealias CallbackNavControllerNavigationToChatScreen = () -> Unit
+typealias CallbackNavControllerNavigationToChatScreen = (String) -> Unit
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
     callbackNavController: CallbackNavControllerNavigationToChatScreen,
 ) {
-
     Scaffold(
         topBar = { AppBarHomeScreen() },
     ) { paddingValues ->
@@ -164,37 +158,27 @@ fun ChatsHomeScreen(homeViewModel: HomeViewModel) {
         items(notes.value) { chatData ->
             ChatListItem(chatData)
         }
-
     }
 }
 
 @Composable
-fun ChatListItem(chatData: ChatListDataObject) {
+fun ChatListItem(chatData: ChatBoxObject) {
     Row(
 
     ) {
-        UserImage(chatData.userImage)
-        UserDetails(chatData)
+        UserImage(chatData.userAccount1.userImage)
+       /* UserDetails(chatData)*/
     }
 }
 
 @Composable
 fun AddContactButton(
     callbackNavController: CallbackNavControllerNavigationToChatScreen,
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
 ) {
-    val userConversation = remember {
-        mutableStateOf("")
-    }
-    val name = remember {
-        mutableStateOf("")
-    }
-    var textOfNote by remember { mutableStateOf("") }
-
     val openDialog = remember {
         mutableStateOf(false)
     }
-
     Row(
         horizontalArrangement = Arrangement.End,
     )
@@ -210,16 +194,23 @@ fun AddContactButton(
         }
     }
 
-    OnClickContactAddButton(callbackNavController = callbackNavController, viewModel = viewModel)
-
+    if (openDialog.value) {
+        OnClickContactAddButton(
+            callbackNavController = callbackNavController,
+            viewModel = viewModel,
+        ) {
+            openDialog.value = it
+        }
+    }
 }
 
 @Composable
 fun OnClickContactAddButton(
     callbackNavController: CallbackNavControllerNavigationToChatScreen,
-    viewModel:HomeViewModel
+    viewModel: HomeViewModel,
+    openDialogCallBack: (Boolean) -> Unit
 ) {
-    val userConversation = remember {
+    val contactToAdd = remember {
         mutableStateOf("")
     }
     val name = remember {
@@ -228,14 +219,14 @@ fun OnClickContactAddButton(
     var textOfNote by remember { mutableStateOf("") }
 
     val openDialog = remember {
-        mutableStateOf(false)
+        mutableStateOf(true)
     }
     if (openDialog.value) {
-        val scope = rememberCoroutineScope()
-        AlertDialog(
 
+        AlertDialog(
             onDismissRequest = {
                 openDialog.value = false
+                openDialogCallBack(openDialog.value)
                 textOfNote = ""
             },
             title = {
@@ -252,9 +243,9 @@ fun OnClickContactAddButton(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     TextField(
-                        value = userConversation.value,
+                        value = contactToAdd.value,
                         onValueChange = {
-                            userConversation.value = it
+                            contactToAdd.value = it
                         },
                         placeholder = {
                             Text(text = "Enter the number phone")
@@ -275,13 +266,20 @@ fun OnClickContactAddButton(
                 Button(
                     onClick = {
                         openDialog.value = false
+                        openDialogCallBack(openDialog.value)
                         textOfNote = ""
-                        viewModel.fireStore.consultUser(
-                            callbackNavController,
-                            userConversation.value,
-                            name.value
-                        )
-                        /*updateFlow()*/
+                        viewModel.userConsulting(
+                            numberPhoneContact = contactToAdd.value
+                        ) { requestStated ->
+                            when (requestStated) {
+                                HomeViewModel.HomeScreenStated.CorrectNumber -> {
+                                    callbackNavController.invoke("/${contactToAdd.value}/${name.value}/${viewModel.logUser}")
+                                }
+                                else -> {
+                                    Unit
+                                }
+                            }
+                        }
                     },
 
                     ) {
@@ -292,6 +290,7 @@ fun OnClickContactAddButton(
                 Button(
                     onClick = {
                         openDialog.value = false
+                        openDialogCallBack(openDialog.value)
                         textOfNote = ""
                     },
 
@@ -302,3 +301,4 @@ fun OnClickContactAddButton(
         )
     }
 }
+
