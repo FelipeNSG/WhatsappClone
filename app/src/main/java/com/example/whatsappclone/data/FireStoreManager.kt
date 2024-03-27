@@ -53,7 +53,14 @@ class FireStoreManager {
         }
     }
 
-    fun fetchConsulterChats(
+    fun fetchChats(
+        user1: String,
+        user2: String,
+    ){
+
+    }
+
+    fun consulterChats(
         user1: String,
         user2: String,
         callBack: (FireStoreManagerState) -> Unit
@@ -61,18 +68,18 @@ class FireStoreManager {
         var stated: FireStoreManagerState = FireStoreManagerState.Loading
         callBack(stated)
         val docRef = fireStore.collection("chats")
-            .where(
-                Filter.and(
-                    Filter.or(
-                        Filter.equalTo("userAccount1.numberPhone", (user1.toLong())),
-                        Filter.equalTo("userAccount1.numberPhone", (user2.toLong()))
-                    ),
-                    Filter.or(
-                        Filter.equalTo("userAccount2.numberPhone", (user1.toLong())),
-                        Filter.equalTo("userAccount2.numberPhone", (user2.toLong()))
-                    )
+        docRef.where(
+            Filter.and(
+                Filter.or(
+                    Filter.equalTo("userAccount1.numberPhone", (user1.toLong())),
+                    Filter.equalTo("userAccount1.numberPhone", (user2.toLong()))
+                ),
+                Filter.or(
+                    Filter.equalTo("userAccount2.numberPhone", (user1.toLong())),
+                    Filter.equalTo("userAccount2.numberPhone", (user2.toLong()))
                 )
             )
+        )
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {

@@ -44,7 +44,7 @@ class ChatScreenViewModel(
     ) {
         var stated: ChatScreenStated = ChatScreenStated.Loading
         callBack(stated)
-        fireStoreManager.fetchConsulterChats(user1, user2) { statedFireStore ->
+        fireStoreManager.consulterChats(user1, user2) { statedFireStore ->
            stated = when (statedFireStore) {
                 FireStoreManager.FireStoreManagerState.Error -> {
                     ChatScreenStated.ErrorConnexion
