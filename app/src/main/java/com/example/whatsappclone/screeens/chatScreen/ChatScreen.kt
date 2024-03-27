@@ -202,7 +202,20 @@ fun ShowSendButton(
                 )
             }
             messageCallBack("")
-            chatScreenViewModel.consulterChat(chatScreenViewModel.userPhoneAccount, chatScreenViewModel.numberContactToAdd)
+            chatScreenViewModel.getChatsBox(chatScreenViewModel.userPhoneAccount, chatScreenViewModel.numberContactToAdd){ statedFetchChat ->
+                when(statedFetchChat){
+                    ChatScreenViewModel.ChatScreenStated.ErrorConnexion -> {
+                    }
+                    ChatScreenViewModel.ChatScreenStated.FoundChat -> {
+                    }
+                    ChatScreenViewModel.ChatScreenStated.Loading -> {
+
+                    }
+                    ChatScreenViewModel.ChatScreenStated.NotFountChat -> {
+
+                    }
+                }
+            }
         }
     ) {
         Icon(

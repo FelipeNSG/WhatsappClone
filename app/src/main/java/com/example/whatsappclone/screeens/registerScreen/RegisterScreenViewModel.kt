@@ -22,7 +22,7 @@ class RegisterScreenViewModel(private val fireStore: FireStoreManager) : ViewMod
         var stated: RegisterStatedScreen = RegisterStatedScreen.Loading
         callBack(stated)
         if (numberPhone == numberPhoneAgain) {
-            fireStore.consultUser(numberPhone.toString()) { fireStoreStated ->
+            fireStore.fetchUser(numberPhone.toString()) { fireStoreStated ->
                 when (fireStoreStated) {
                     FireStoreManager.FireStoreManagerState.Error -> {
                         //Error de red

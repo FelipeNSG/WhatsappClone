@@ -121,7 +121,6 @@ fun RegisterScreen(
                         RegisterScreenViewModel.RegisterStatedScreen.ErrorConnexion -> {
                             errorConnexion.value = true
                         }
-
                         RegisterScreenViewModel.RegisterStatedScreen.Loading -> {
                             Unit
                         }
@@ -134,6 +133,8 @@ fun RegisterScreen(
                             numberRegisterSuccess.value = true
                             callbackNavControllerToHomeScreen.invoke("/${phoneNumber.value}")
                         }
+
+                        else -> {Unit}
                     }
                 }
             }

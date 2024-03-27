@@ -2,6 +2,7 @@ package com.example.whatsappclone.data
 
 import com.example.whatsappclone.data.moldel.ChatBoxObject
 import com.example.whatsappclone.data.moldel.UserAccount
+import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +26,7 @@ class FireStoreManager {
     }
 
 
-    fun consultUser(numberPhone: String, callBack: (FireStoreManagerState) -> Unit) {
+    fun fetchUser(numberPhone: String, callBack: (FireStoreManagerState) -> Unit) {
         var stated: FireStoreManagerState = FireStoreManagerState.Loading
         callBack(stated)
         try {
@@ -47,26 +48,59 @@ class FireStoreManager {
                 }
         } catch (ex: Exception) {
             ex.printStackTrace()
+            FireStoreManagerState.Error
+            callBack(stated)
         }
     }
 
-    fun consulterChat(user1: String, user2: String) {
+    fun fetchConsulterChats(
+        user1: String,
+        user2: String,
+        callBack: (FireStoreManagerState) -> Unit
+    ) {
+        var stated: FireStoreManagerState = FireStoreManagerState.Loading
+        callBack(stated)
         val docRef = fireStore.collection("chats")
-            .whereEqualTo("userAccount1.numberPhone", (user2.toLong()))
+            .where(
+                Filter.and(
+                    Filter.or(
+                        Filter.equalTo("userAccount1.numberPhone", (user1.toLong())),
+                        Filter.equalTo("userAccount1.numberPhone", (user2.toLong()))
+                    ),
+                    Filter.or(
+                        Filter.equalTo("userAccount2.numberPhone", (user1.toLong())),
+                        Filter.equalTo("userAccount2.numberPhone", (user2.toLong()))
+                    )
+                )
+            )
             .get()
             .addOnSuccessListener { result ->
-               for (document in result) {
-                   if (document.exists()) {
-                       println("Se encontró un documento: ${document.data}")
-                   } else {
-                       println("No se encontró ningún ")
-                   }
-               }
+                for (document in result) {
+                    if (document.exists()) {
+                        println("Se encontró un documento: ${document.data}")
+                    }
+                }
+            }
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val document = task.result
+                    if (document != null) {
+                        stated = if (document.isEmpty) {
+                            println("No Se encontro el documento")
+                            FireStoreManagerState.NoSuccess
+                        } else {
+                            println("sii Se encontro el documento")
+                            FireStoreManagerState.Success
+                        }
+                    }
+                    callBack(stated)
+                }
             }
             .addOnFailureListener { exception ->
                 println("Error de red $exception")
+                stated = FireStoreManagerState.Error
+                callBack(stated)
             }
-
     }
 
     fun getNumberPhone(userConversation: Long): Flow<List<UserAccount>> = callbackFlow {

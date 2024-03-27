@@ -90,6 +90,10 @@ fun LoginScreen(
                                 println("correct")
 
                             }
+
+                            else -> {
+                                Unit
+                            }
                         }
                     }
                 }

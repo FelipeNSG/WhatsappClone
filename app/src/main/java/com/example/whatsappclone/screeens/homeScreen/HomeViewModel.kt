@@ -27,7 +27,7 @@ class HomeViewModel(
             println(logUser)
             println(numberPhoneContact)
             callBack(sated)
-            fireStore.consultUser(
+            fireStore.fetchUser(
                 numberPhoneContact,
             ) { statedFireStore ->
                 sated = when (statedFireStore) {

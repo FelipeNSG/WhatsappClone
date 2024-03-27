@@ -68,7 +68,7 @@ fun AppNavigation() {
             RegisterScreen(
                 registerScreenViewModel
             ) {
-                navController.navigate(route = AppScreen.HomeScreen.route)
+                navController.navigate(route = AppScreen.HomeScreen.route + it)
             }
         }
 

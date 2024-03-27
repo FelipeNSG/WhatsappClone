@@ -23,7 +23,7 @@ class ChatScreenViewModel(
         contactName: String,
         contentMessage: String
     ) {
-       val newChatBox = ChatBoxObject(
+        val newChatBox = ChatBoxObject(
             userAccount1 = UserAccount(userLog.toLong()),
             userAccount2 = UserAccount(contact.toLong()),
             userName = contactName,
@@ -37,11 +37,48 @@ class ChatScreenViewModel(
         fireStoreManager.createChatBox(newChatBox)
     }
 
- fun consulterChat(user1:String, user2:String){
-        fireStoreManager.consulterChat(user1, user2)
-    }
-    fun screenActualChat(){
+    fun getChatsBox(
+        user1: String,
+        user2: String,
+        callBack: (ChatScreenStated) -> Unit
+    ) {
+        var stated: ChatScreenStated = ChatScreenStated.Loading
+        callBack(stated)
+        fireStoreManager.fetchConsulterChats(user1, user2) { statedFireStore ->
+           stated = when (statedFireStore) {
+                FireStoreManager.FireStoreManagerState.Error -> {
+                    ChatScreenStated.ErrorConnexion
+                }
 
+                FireStoreManager.FireStoreManagerState.Loading -> {
+                    ChatScreenStated.Loading
+                }
+
+                FireStoreManager.FireStoreManagerState.NoSuccess -> {
+                    ChatScreenStated.NotFountChat
+                }
+
+                FireStoreManager.FireStoreManagerState.Success -> {
+                    ChatScreenStated.FoundChat
+                }
+            }
+            callBack(stated)
+        }
+    }
+
+    fun checkIfAChatAlreadyExists() {
+
+    }
+
+    fun screenActualChat() {
+
+    }
+
+    sealed class ChatScreenStated {
+        data object Loading : ChatScreenStated()
+        data object FoundChat : ChatScreenStated()
+        data object NotFountChat : ChatScreenStated()
+        data object ErrorConnexion : ChatScreenStated()
     }
 
 }
@@ -54,7 +91,12 @@ class MyViewModelFactoryChatScreen(
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return if (modelClass.isAssignableFrom(ChatScreenViewModel::class.java)) {
-            ChatScreenViewModel(fireStore, numberContactToAdd, userNameContactToAdd, userPhoneAccount) as T
+            ChatScreenViewModel(
+                fireStore,
+                numberContactToAdd,
+                userNameContactToAdd,
+                userPhoneAccount
+            ) as T
 
         } else throw Exception("Error Factory")
     }
