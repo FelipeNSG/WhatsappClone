@@ -12,22 +12,22 @@ class LoginScreenViewModel(private val fireStore: FireStoreManager) : ViewModel(
     ){
         var stated:LoginStatedScreen = LoginStatedScreen.Loading
         callBack(stated)
-        fireStore.fetchUser(phoneNumberUser){
+        fireStore.fetchIfUserExist(phoneNumberUser){
             consulterStated ->
             stated = when(consulterStated){
-                FireStoreManager.FireStoreManagerState.Error -> {
+                FireStoreManager.FireStoreManagerUserConsultState.Error -> {
                     LoginStatedScreen.ErrorConnexion
                 }
 
-                FireStoreManager.FireStoreManagerState.Loading -> {
+                FireStoreManager.FireStoreManagerUserConsultState.Loading -> {
                     LoginStatedScreen.Loading
                 }
 
-                FireStoreManager.FireStoreManagerState.NoSuccess -> {
+                FireStoreManager.FireStoreManagerUserConsultState.UserNotFound-> {
                     LoginStatedScreen.IncorrectNumber
                 }
 
-                FireStoreManager.FireStoreManagerState.Success -> {
+                FireStoreManager.FireStoreManagerUserConsultState.UserFound -> {
                     LoginStatedScreen.CorrectNumber
                 }
             }

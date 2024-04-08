@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.example.whatsappclone.ui.theme.fontFamilyMonserrat
 
 @Composable
-fun AppBarHomeScreen() {
+fun AppBarHomeScreen(userLog: String) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -31,7 +31,14 @@ fun AppBarHomeScreen() {
             fontFamily = fontFamilyMonserrat(500),
             fontSize = 15.sp,
             color = Color.Black,
-            )
+        )
+        Text(
+            text = "User: $userLog",
+            fontFamily = fontFamilyMonserrat(500),
+            fontSize = 15.sp,
+            color = Color.Black,
+            modifier = Modifier.padding(10.dp)
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
@@ -48,4 +55,5 @@ fun AppBarHomeScreen() {
             }
         }
     }
+
 }

@@ -1,7 +1,7 @@
 package com.example.whatsappclone.data.moldel
 
-class UserAccount(
-    val numberPhone: Long,
+data class UserAccount(
+    val numberPhone: Long = 0,
     val userImage: String = imageRandom()
 )
 
@@ -20,6 +20,6 @@ class Conversation(
 )
 
 fun imageRandom(): String {
-    val number = (200..250).random()
+    val number = (220..250).random()
     return "https://picsum.photos/id/$number/200/300"
 }

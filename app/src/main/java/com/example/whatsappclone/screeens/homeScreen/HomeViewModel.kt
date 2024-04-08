@@ -4,19 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.whatsappclone.data.FireStoreManager
 import com.example.whatsappclone.data.moldel.ChatBoxObject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
 
 class HomeViewModel(
     val logUser: String,
     private val fireStore: FireStoreManager
 ) : ViewModel() {
-    private val scope = CoroutineScope(Dispatchers.IO)
-    private var _userList = MutableSharedFlow<List<ChatBoxObject>>()
-    val userList: Flow<List<ChatBoxObject>> = _userList
+
+
+fun getChatList(): Flow<List<ChatBoxObject>> {
+    return fireStore.getListChatBox(logUser)
+}
 
     fun userConsulting(
         numberPhoneContact: String,
@@ -24,52 +22,36 @@ class HomeViewModel(
     ) {
         var sated: HomeScreenStated = HomeScreenStated.Loading
         if (logUser != numberPhoneContact) {
-            println(logUser)
-            println(numberPhoneContact)
             callBack(sated)
-            fireStore.fetchUser(
+            fireStore.fetchIfUserExist(
                 numberPhoneContact,
             ) { statedFireStore ->
                 sated = when (statedFireStore) {
-                    FireStoreManager.FireStoreManagerState.Error -> {
+                    FireStoreManager.FireStoreManagerUserConsultState.Error -> {
                         HomeScreenStated.ErrorConnexion
                     }
 
-                    FireStoreManager.FireStoreManagerState.Loading -> {
+                    FireStoreManager.FireStoreManagerUserConsultState.Loading -> {
                         HomeScreenStated.Loading
                     }
 
-                    FireStoreManager.FireStoreManagerState.NoSuccess -> {
+                    FireStoreManager.FireStoreManagerUserConsultState.UserNotFound -> {
                         HomeScreenStated.IncorrectNumber
                     }
 
-                    FireStoreManager.FireStoreManagerState.Success -> {
+                    FireStoreManager.FireStoreManagerUserConsultState.UserFound -> {
                         HomeScreenStated.CorrectNumber
+
                     }
                 }
                 callBack(sated)
             }
-        }else {
+        } else {
             callBack(HomeScreenStated.IncorrectNumber)
         }
     }
 
-    fun createChatMessages(
 
-    ) {
-
-    }
-
-    fun updateFlow() {
-        scope.launch {
-
-        }
-    }
-
-
-    fun createChatScreen() {
-
-    }
 
     sealed class HomeScreenStated {
         data object Loading : HomeScreenStated()
@@ -80,7 +62,7 @@ class HomeViewModel(
 
 }
 
-class MyViewModelFactory(val numberPhone: String, private val fireStore: FireStoreManager) :
+class MyViewModelFactory(private val numberPhone: String, private val fireStore: FireStoreManager) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {

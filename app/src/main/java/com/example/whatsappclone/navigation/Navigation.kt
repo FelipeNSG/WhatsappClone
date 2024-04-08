@@ -56,10 +56,7 @@ fun AppNavigation() {
                 viewModel(factory = MyViewModelFactory(userLog,fireStore))
             HomeScreen(
                 homeScreenViewModel
-            ) {sendVariables ->
-                navController.navigate(route = AppScreen.ChatScreen.route + sendVariables)
-
-            }
+            ) { sendVariables -> navController.navigate(route = AppScreen.ChatScreen.route + sendVariables) }
         }
 
         composable(AppScreen.RegisterScreen.route) {
@@ -73,7 +70,7 @@ fun AppNavigation() {
         }
 
         composable(
-            AppScreen.ChatScreen.route + "/{contactToAdd}/{userNameContactToAdd}/{userPhoneAccount}",
+            AppScreen.ChatScreen.route + "/{contactToAdd}/{userNameContactToAdd}/{userPhoneAccount}/{idDocument}",
             arguments = listOf(
                 navArgument(name = "contactToAdd") {
                     type = NavType.StringType
@@ -83,17 +80,20 @@ fun AppNavigation() {
                 },
                 navArgument(name = "userPhoneAccount"){
                     type = NavType.StringType
+                },
+                navArgument(name = "idDocument"){
+                    type = NavType.StringType
                 }
-
             )
         ) {
             val contactToAdd:String = it.arguments?.getString("contactToAdd") ?: "unknown"
             val userNameContactToAdd: String = it.arguments?.getString("userNameContactToAdd") ?: "unknown"
             val userPhoneAccount: String = it.arguments?.getString("userPhoneAccount") ?: "unknown"
+            val idDocument: String = it.arguments?.getString("idDocument") ?: "unknown"
             val chatScreenViewModel: ChatScreenViewModel =
-                viewModel(factory = MyViewModelFactoryChatScreen(fireStore, contactToAdd, userNameContactToAdd, userPhoneAccount))
+                viewModel(factory = MyViewModelFactoryChatScreen(fireStore, contactToAdd, userNameContactToAdd, userPhoneAccount, idDocument))
             ChatScreen(
-                chatScreenViewModel
+                chatScreenViewModel,
             )
         }
     }

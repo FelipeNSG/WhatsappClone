@@ -2,6 +2,7 @@ package com.example.whatsappclone.screeens.homeScreen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -41,20 +41,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.example.whatsappclone.components.AppBarHomeScreen
-/*import com.example.whatsappclone.components.UserDetails*/
+import com.example.whatsappclone.components.UserDetails
 import com.example.whatsappclone.components.UserImage
 import com.example.whatsappclone.data.moldel.ChatBoxObject
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
 
 typealias CallbackNavControllerNavigationToChatScreen = (String) -> Unit
 
+
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
     callbackNavController: CallbackNavControllerNavigationToChatScreen,
 ) {
+    val chatList by viewModel.getChatList().collectAsState(emptyList())
     Scaffold(
-        topBar = { AppBarHomeScreen() },
+        topBar = { AppBarHomeScreen(viewModel.logUser) },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -66,7 +68,7 @@ fun HomeScreen(
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-                ChatsHomeScreen(viewModel)
+                ChatsHomeScreen(chatList, viewModel.logUser, callbackNavController)
             }
         }
         Box(
@@ -138,10 +140,11 @@ fun ProfileStatus() {
 
 
 @Composable
-fun ChatsHomeScreen(homeViewModel: HomeViewModel) {
-    val notes = homeViewModel.userList.collectAsState(
-        emptyList()
-    )
+fun ChatsHomeScreen(
+    chatList: List<ChatBoxObject>,
+    logUser: String,
+    callbackNavController: CallbackNavControllerNavigationToChatScreen
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -155,19 +158,52 @@ fun ChatsHomeScreen(homeViewModel: HomeViewModel) {
         item {
             ProfileStatus()
         }
-        items(notes.value) { chatData ->
-            ChatListItem(chatData)
+
+        if (chatList.isNotEmpty()) {
+            items(chatList.size) { chatData ->
+                ChatListItem(chatList[chatData], logUser, callbackNavController)
+            }
         }
     }
 }
 
 @Composable
-fun ChatListItem(chatData: ChatBoxObject) {
+fun ChatListItem(
+    chatData: ChatBoxObject,
+    logUser: String,
+    callbackNavController: CallbackNavControllerNavigationToChatScreen
+) {
+    val contactName = remember {
+        mutableStateOf("")
+    }
+    val contactNumber = remember {
+        mutableStateOf("")
+    }
+
+    if (logUser != chatData.userNameChatUserLog.numberPhone) {
+        contactName.value = chatData.userNameChatUserLog.name
+        contactNumber.value = chatData.userAccount1.numberPhone.toString()
+    } else {
+        contactName.value = chatData.userNameChatContact.name
+        contactNumber.value = chatData.userAccount2.numberPhone.toString()
+    }
+
     Row(
+        modifier = Modifier.clickable {
+            callbackNavController.invoke(
+                "/${contactNumber.value}/${contactName.value}/${logUser}/${chatData.iD}"
+            )
+        }
 
     ) {
-        UserImage(chatData.userAccount1.userImage)
-       /* UserDetails(chatData)*/
+        UserImage(
+            chatData,
+            logUser,
+        )
+        UserDetails(
+            chatData,
+            logUser
+        )
     }
 }
 
@@ -273,7 +309,9 @@ fun OnClickContactAddButton(
                         ) { requestStated ->
                             when (requestStated) {
                                 HomeViewModel.HomeScreenStated.CorrectNumber -> {
-                                    callbackNavController.invoke("/${contactToAdd.value}/${name.value}/${viewModel.logUser}")
+                                    callbackNavController.invoke(
+                                        "/${contactToAdd.value}/${name.value}/${viewModel.logUser}/noIdDocument"
+                                    )
                                 }
                                 else -> {
                                     Unit
@@ -293,8 +331,7 @@ fun OnClickContactAddButton(
                         openDialogCallBack(openDialog.value)
                         textOfNote = ""
                     },
-
-                    ) {
+                ) {
                     Text(text = "CANCEL")
                 }
             },

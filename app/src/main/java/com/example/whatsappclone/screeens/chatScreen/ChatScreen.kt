@@ -29,6 +29,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -43,22 +46,21 @@ import coil.compose.SubcomposeAsyncImage
 import com.example.whatsappclone.components.TopAppBarChatScreen
 import com.example.whatsappclone.ui.theme.GreenButtons
 import com.example.whatsappclone.ui.theme.colorBlueChat
-import com.example.whatsappclone.ui.theme.colorButtonBlue
 import com.example.whatsappclone.ui.theme.colorChatGreen
 import com.example.whatsappclone.ui.theme.colorGreyChat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+
+val scope = CoroutineScope(Dispatchers.IO)
 
 @Composable
 fun ChatScreen(chatScreenViewModel: ChatScreenViewModel) {
-   ChatScreenToRegisterNewChat(chatScreenViewModel = chatScreenViewModel)
-}
-
-@Composable
-fun ChatScreenToRegisterNewChat(chatScreenViewModel: ChatScreenViewModel){
+    val profileImage = remember {
+        mutableStateOf("")
+    }
+    LaunchedEffect(Unit) { profileImage.value = chatScreenViewModel.getImage() }
     Scaffold(
-        topBar = { TopAppBarChatScreen(chatScreenViewModel.userNameContactToAdd) },
+        topBar = { TopAppBarChatScreen(chatScreenViewModel.userNameContact, profileImage.value) },
         bottomBar = {
             TextFieldChatAndAdjacentButtons(chatScreenViewModel)
         }
@@ -138,18 +140,17 @@ fun TextFieldChatAndAdjacentButtons(
             )
         )
 
-        if (!showButtonSend.value){
+        if (!showButtonSend.value) {
             ShowButtonsCameraAndMicrophone()
 
-        }else{
+        } else {
             ShowSendButton(
                 chatScreenViewModel = chatScreenViewModel,
                 contentMessage = message.value
-            ){
+            ) {
                 message.value = it
             }
         }
-
     }
 }
 
@@ -157,7 +158,6 @@ fun TextFieldChatAndAdjacentButtons(
 fun ShowButtonsCameraAndMicrophone(
 
 ) {
-
     IconButton(
         modifier = Modifier.size(40.dp),
         onClick = { }
@@ -186,36 +186,50 @@ fun ShowButtonsCameraAndMicrophone(
 @Composable
 fun ShowSendButton(
     chatScreenViewModel: ChatScreenViewModel,
-    contentMessage:String,
+    contentMessage: String,
     messageCallBack: (String) -> Unit
 ) {
-    val scope = CoroutineScope(Dispatchers.IO)
+    val chatExist = remember {
+        mutableStateOf(false)
+    }
+    println(chatExist)
     IconButton(
         modifier = Modifier.size(40.dp),
         onClick = {
-            scope.launch {
-                chatScreenViewModel.createChatBox(
-                    userLog = chatScreenViewModel.userPhoneAccount,
-                    contact = chatScreenViewModel.numberContactToAdd,
-                    contactName = chatScreenViewModel.userNameContactToAdd,
-                    contentMessage = contentMessage
+            if (!chatExist.value) {
+                chatScreenViewModel.checkIfAChatAlreadyExists(
+                    chatScreenViewModel.userLogPhoneAccount,
+                    chatScreenViewModel.numberContact,
+                    chatScreenViewModel.userNameContact,
+                    contentMessage,
+                ) { statedFetchChat ->
+                    when (statedFetchChat) {
+                        ChatScreenViewModel.ChatScreenStated.FoundChat -> {
+                            chatExist.value = true
+                            chatScreenViewModel.sendMessage(
+                                chatScreenViewModel.userLogPhoneAccount,
+                                chatScreenViewModel.numberContact,
+                                contentMessage
+                            )
+                        }
+
+                        ChatScreenViewModel.ChatScreenStated.NotFountChat -> {
+                            chatExist.value = true
+                        }
+
+                        else -> {
+                            Unit
+                        }
+                    }
+                }
+            } else {
+                chatScreenViewModel.sendMessage(
+                    chatScreenViewModel.userLogPhoneAccount,
+                    chatScreenViewModel.numberContact,
+                    contentMessage
                 )
             }
             messageCallBack("")
-            chatScreenViewModel.getChatsBox(chatScreenViewModel.userPhoneAccount, chatScreenViewModel.numberContactToAdd){ statedFetchChat ->
-                when(statedFetchChat){
-                    ChatScreenViewModel.ChatScreenStated.ErrorConnexion -> {
-                    }
-                    ChatScreenViewModel.ChatScreenStated.FoundChat -> {
-                    }
-                    ChatScreenViewModel.ChatScreenStated.Loading -> {
-
-                    }
-                    ChatScreenViewModel.ChatScreenStated.NotFountChat -> {
-
-                    }
-                }
-            }
         }
     ) {
         Icon(
@@ -228,17 +242,32 @@ fun ShowSendButton(
 }
 
 @Composable
-fun ChatBox(chatScreenViewModel: ChatScreenViewModel) {
+fun ChatBox(
+    chatScreenViewModel: ChatScreenViewModel,
+) {
+    val chatList by chatScreenViewModel.getChat().collectAsState(emptyList())
+    if (chatList.isNotEmpty()) {
+        LazyColumn(
+        ) {
+                items(chatList.first().messages.size) {
+                    if (chatScreenViewModel.userLogPhoneAccount == chatList.first().messages[it].user){
+                        ChatMessageTest1(message =  chatList.first().messages[it].content)
+                    } else {
 
-    LazyColumn() {
-        item {
-
+                        if (chatScreenViewModel.userLogPhoneAccount == chatList.first().userAccount1.numberPhone.toString()){
+                            ChatTesting2(message = chatList.first().messages[it].content, chatList.first().userAccount2.userImage)
+                        }
+                        else{
+                            ChatTesting2(message = chatList.first().messages[it].content, chatList.first().userAccount1.userImage)
+                        }
+                    }
+                }
         }
     }
 }
 
 @Composable
-fun ChatMessageTest1(chatScreenViewModel: ChatScreenViewModel) {
+fun ChatMessageTest1(message: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -246,18 +275,18 @@ fun ChatMessageTest1(chatScreenViewModel: ChatScreenViewModel) {
         horizontalArrangement = Arrangement.Center
 
     ) {
-        Card(
+        /*Card(
             colors = CardDefaults.cardColors(
                 containerColor = colorButtonBlue
             ),
             shape = CircleShape
         ) {
             Text(
-                text = "21 JUNE 2020",
+                text = "",
                 modifier = Modifier.padding(10.dp),
                 color = Color.White
             )
-        }
+        }*/
     }
     Row(
         modifier = Modifier
@@ -271,7 +300,7 @@ fun ChatMessageTest1(chatScreenViewModel: ChatScreenViewModel) {
             ),
         ) {
             Text(
-                text = "Anything",
+                text = message,
                 modifier = Modifier.padding(10.dp)
             )
         }
@@ -318,10 +347,11 @@ fun ChatMessageTest1(chatScreenViewModel: ChatScreenViewModel) {
             tint = colorBlueChat
         )
     }
+
 }
 
 @Composable
-fun ChatTesting2() {
+fun ChatTesting2(message:String,  imageUrl: String) {
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -339,8 +369,7 @@ fun ChatTesting2() {
                 containerColor = colorGreyChat
             ),
         ) {
-            Text(
-                text = "Hello, yes im Here",
+            Text(message,
                 modifier = Modifier.padding(10.dp)
             )
         }
@@ -358,7 +387,7 @@ fun ChatTesting2() {
             shape = CircleShape,
         ) {
             SubcomposeAsyncImage(
-                model = "https://picsum.photos/id/230/200/300",
+                model = imageUrl,
                 contentDescription = "User Photo",
                 modifier = Modifier
                     .clip(CircleShape)

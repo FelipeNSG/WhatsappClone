@@ -21,6 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,7 +35,12 @@ import com.example.whatsappclone.ui.theme.fontFamilyMonserrat
 
 
 @Composable
-fun TopAppBarChatScreen(contactName:String) {
+fun TopAppBarChatScreen(contactName: String, imageUrl:String) {
+    val profileImageUrl = remember {
+        mutableStateOf("")
+    }
+
+    profileImageUrl.value = imageUrl
     Row(
         Modifier
             .fillMaxWidth()
@@ -55,7 +62,7 @@ fun TopAppBarChatScreen(contactName:String) {
                 shape = CircleShape,
             ) {
                 SubcomposeAsyncImage(
-                    model = "https://picsum.photos/id/235/200/300",
+                    model = profileImageUrl.value,
                     contentDescription = "Profile Picture",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

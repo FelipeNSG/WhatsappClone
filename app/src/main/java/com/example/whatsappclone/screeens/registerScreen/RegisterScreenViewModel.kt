@@ -22,18 +22,18 @@ class RegisterScreenViewModel(private val fireStore: FireStoreManager) : ViewMod
         var stated: RegisterStatedScreen = RegisterStatedScreen.Loading
         callBack(stated)
         if (numberPhone == numberPhoneAgain) {
-            fireStore.fetchUser(numberPhone.toString()) { fireStoreStated ->
+            fireStore.fetchIfUserExist(numberPhone.toString()) { fireStoreStated ->
                 when (fireStoreStated) {
-                    FireStoreManager.FireStoreManagerState.Error -> {
+                    FireStoreManager.FireStoreManagerUserConsultState.Error -> {
                         //Error de red
                         stated = RegisterStatedScreen.ErrorConnexion
                     }
 
-                    FireStoreManager.FireStoreManagerState.Loading -> {
+                    FireStoreManager.FireStoreManagerUserConsultState.Loading -> {
                         stated = RegisterStatedScreen.Loading
                     }
 
-                    FireStoreManager.FireStoreManagerState.NoSuccess -> {
+                    FireStoreManager.FireStoreManagerUserConsultState.UserNotFound-> {
                         //Is NumberRegister because the user was not found and can register
                         stated = RegisterStatedScreen.NumberRegister
                         viewModelScope.launch {
@@ -41,7 +41,7 @@ class RegisterScreenViewModel(private val fireStore: FireStoreManager) : ViewMod
                         }
                     }
 
-                    FireStoreManager.FireStoreManagerState.Success -> {
+                    FireStoreManager.FireStoreManagerUserConsultState.UserFound-> {
                         //Is NoSuccess because the user was  found and can't register
                         stated = RegisterStatedScreen.NumberExist
                     }

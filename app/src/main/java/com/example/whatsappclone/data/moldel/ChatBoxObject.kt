@@ -3,16 +3,22 @@ package com.example.whatsappclone.data.moldel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+data class ContactName(
+    val numberPhone:String = "0",
+    val name: String = "Contact Name"
+)
 data class ChatBoxObject(
-    val userAccount1: UserAccount,
-    val userAccount2: UserAccount,
-    val messages: List<Message> = listOf(),
-    val userName: String,
+    var iD: String = "",
+    val userAccount1: UserAccount = UserAccount(),
+    val userAccount2: UserAccount = UserAccount(),
+    val messages: List<Message> = emptyList(),
+    val userNameChatUserLog: ContactName = ContactName(),
+    val userNameChatContact: ContactName = ContactName()
 )
 
 data class Message(
-    val user: String,
-    val content: String?,
+    val user: String = "",
+    val content: String = "",
     val deliveryStatus: MessageDeliveryStatus = MessageDeliveryStatus.DELIVERED,
     val type: MessageType = MessageType.TEXT,
     val timeStamp: String = LocalDateTime.now()
