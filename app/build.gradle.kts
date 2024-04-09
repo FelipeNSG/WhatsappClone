@@ -86,7 +86,7 @@ dependencies {
     implementation ("androidx.compose.foundation:foundation")
     implementation ("androidx.compose.material:material-icons-core")
     implementation ("androidx.compose.material:material-icons-extended")
-    implementation ("androidx.compose.ui:ui-text-google-fonts:1.6.3")
+    implementation ("androidx.compose.ui:ui-text-google-fonts:1.6.5")
     implementation("androidx.datastore:datastore-preferences:1.0.0") //dataStore
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("androidx.core:core-ktx:1.12.0")

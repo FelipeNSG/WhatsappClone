@@ -47,16 +47,18 @@ import com.example.whatsappclone.data.moldel.ChatBoxObject
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
 
 typealias CallbackNavControllerNavigationToChatScreen = (String) -> Unit
+typealias CallbackNavControllerNavigationToLoginScreen = () -> Unit
 
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
+    callbackNavControllerToLogin: CallbackNavControllerNavigationToLoginScreen,
     callbackNavController: CallbackNavControllerNavigationToChatScreen,
 ) {
     val chatList by viewModel.getChatList().collectAsState(emptyList())
     Scaffold(
-        topBar = { AppBarHomeScreen(viewModel.logUser) },
+        topBar = { AppBarHomeScreen(viewModel.logUser, callbackNavController) },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -80,6 +82,7 @@ fun HomeScreen(
             AddContactButton(callbackNavController, viewModel)
         }
     }
+
 }
 
 @Composable
@@ -313,6 +316,7 @@ fun OnClickContactAddButton(
                                         "/${contactToAdd.value}/${name.value}/${viewModel.logUser}/noIdDocument"
                                     )
                                 }
+
                                 else -> {
                                     Unit
                                 }

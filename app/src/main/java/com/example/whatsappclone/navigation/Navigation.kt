@@ -1,6 +1,7 @@
 package com.example.whatsappclone.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -8,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.whatsappclone.data.FireStoreManager
+import com.example.whatsappclone.dataStore.DataStoreSingleton
 import com.example.whatsappclone.screeens.chatScreen.ChatScreen
 import com.example.whatsappclone.screeens.chatScreen.ChatScreenViewModel
 import com.example.whatsappclone.screeens.chatScreen.MyViewModelFactoryChatScreen
@@ -22,22 +24,35 @@ import com.example.whatsappclone.screeens.registerScreen.RegisterScreen
 import com.example.whatsappclone.screeens.registerScreen.RegisterScreenViewModel
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+  loginUser:String?,
+
+) {
     val navController = rememberNavController()
     val fireStore = FireStoreManager()
-    NavHost(navController = navController, startDestination = AppScreen.LoginScreen.route) {
+    val dataStore = DataStoreSingleton.getInstance(LocalContext.current)
+
+    NavHost(
+        navController = navController,
+
+        startDestination = if (loginUser == null) {
+            AppScreen.LoginScreen.route
+        } else AppScreen.HomeScreen.route + "/${loginUser}"
+    ) {
+
+
         composable(
             AppScreen.LoginScreen.route
         ) {
             val loginScreenViewModel: LoginScreenViewModel =
-                viewModel(factory = MyViewModelFactoryLoginScreen(fireStore))
+                viewModel(factory = MyViewModelFactoryLoginScreen(fireStore, dataStore))
             LoginScreen(
                 loginScreenViewModel,
                 {
                     navController.navigate(route = AppScreen.HomeScreen.route + it)
                 },
                 {
-                    navController.navigate(route = AppScreen.RegisterScreen.route )
+                    navController.navigate(route = AppScreen.RegisterScreen.route)
                 }
             )
         }
@@ -51,12 +66,14 @@ fun AppNavigation() {
             )
 
         ) {
-            val userLog:String = it.arguments?.getString("userLog") ?: "unknown"
+            val userLog: String = it.arguments?.getString("userLog") ?: loginUser ?: "Unknown"
             val homeScreenViewModel: HomeViewModel =
-                viewModel(factory = MyViewModelFactory(userLog,fireStore))
+                viewModel(factory = MyViewModelFactory(userLog, fireStore))
             HomeScreen(
-                homeScreenViewModel
-            ) { sendVariables -> navController.navigate(route = AppScreen.ChatScreen.route + sendVariables) }
+                homeScreenViewModel,
+                { navController.navigate(route = AppScreen.LoginScreen.route) }
+            )
+            { sendVariables -> navController.navigate(route = AppScreen.ChatScreen.route + sendVariables) }
         }
 
         composable(AppScreen.RegisterScreen.route) {
@@ -75,23 +92,32 @@ fun AppNavigation() {
                 navArgument(name = "contactToAdd") {
                     type = NavType.StringType
                 },
-                navArgument(name = "userNameContactToAdd"){
+                navArgument(name = "userNameContactToAdd") {
                     type = NavType.StringType
                 },
-                navArgument(name = "userPhoneAccount"){
+                navArgument(name = "userPhoneAccount") {
                     type = NavType.StringType
                 },
-                navArgument(name = "idDocument"){
+                navArgument(name = "idDocument") {
                     type = NavType.StringType
                 }
             )
         ) {
-            val contactToAdd:String = it.arguments?.getString("contactToAdd") ?: "unknown"
-            val userNameContactToAdd: String = it.arguments?.getString("userNameContactToAdd") ?: "unknown"
+            val contactToAdd: String = it.arguments?.getString("contactToAdd") ?: "unknown"
+            val userNameContactToAdd: String =
+                it.arguments?.getString("userNameContactToAdd") ?: "unknown"
             val userPhoneAccount: String = it.arguments?.getString("userPhoneAccount") ?: "unknown"
             val idDocument: String = it.arguments?.getString("idDocument") ?: "unknown"
             val chatScreenViewModel: ChatScreenViewModel =
-                viewModel(factory = MyViewModelFactoryChatScreen(fireStore, contactToAdd, userNameContactToAdd, userPhoneAccount, idDocument))
+                viewModel(
+                    factory = MyViewModelFactoryChatScreen(
+                        fireStore,
+                        contactToAdd,
+                        userNameContactToAdd,
+                        userPhoneAccount,
+                        idDocument
+                    )
+                )
             ChatScreen(
                 chatScreenViewModel,
             )

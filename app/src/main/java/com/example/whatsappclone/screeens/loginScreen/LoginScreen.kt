@@ -13,6 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 typealias CallbackNavControllerToHomeScreen = (String) -> Unit
@@ -24,6 +27,7 @@ fun LoginScreen(
     callbackNavControllerNavigationToHomeScreen: CallbackNavControllerToHomeScreen,
     callbackNavControllerNavigationToRegisterScreen: CallbackNavControllerToRegisterScreen
 ) {
+    val scope = CoroutineScope(Dispatchers.IO)
     val userCorrect = remember {
         mutableStateOf(true)
     }
@@ -87,8 +91,11 @@ fun LoginScreen(
 
                             LoginScreenViewModel.LoginStatedScreen.CorrectNumber-> {
                                 callbackNavControllerNavigationToHomeScreen.invoke("/${userLog.value}")
+                                scope.launch {
+                                    loginScreenViewModel.setPermission(isEnable = true)
+                                    loginScreenViewModel.setUser(userLog.value)
+                                }
                                 println("correct")
-
                             }
 
                             else -> {

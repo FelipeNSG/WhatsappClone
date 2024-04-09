@@ -16,10 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.whatsappclone.screeens.homeScreen.CallbackNavControllerNavigationToChatScreen
 import com.example.whatsappclone.ui.theme.fontFamilyMonserrat
 
 @Composable
-fun AppBarHomeScreen(userLog: String) {
+fun AppBarHomeScreen(
+    userLog: String,
+    callbackNavController: CallbackNavControllerNavigationToChatScreen
+) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -44,7 +48,9 @@ fun AppBarHomeScreen(userLog: String) {
             horizontalArrangement = Arrangement.End
         ) {
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = {
+
+                },
             ) {
                 Icon(
                     imageVector = Icons.Default.Settings,
