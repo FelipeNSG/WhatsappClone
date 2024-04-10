@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,17 +49,21 @@ import com.example.whatsappclone.ui.theme.GreenWhatsapp
 
 typealias CallbackNavControllerNavigationToChatScreen = (String) -> Unit
 typealias CallbackNavControllerNavigationToLoginScreen = () -> Unit
-
+typealias CallbackRemoveSession = () -> Unit
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel,
+    homeViewModel
+    : HomeViewModel,
     callbackNavControllerToLogin: CallbackNavControllerNavigationToLoginScreen,
     callbackNavController: CallbackNavControllerNavigationToChatScreen,
 ) {
-    val chatList by viewModel.getChatList().collectAsState(emptyList())
+    LaunchedEffect(Unit){
+        homeViewModel.sendDataToDataStore()
+    }
+    val chatList by homeViewModel.getChatList().collectAsState(emptyList())
     Scaffold(
-        topBar = { AppBarHomeScreen(viewModel.logUser, callbackNavController) },
+        topBar = { AppBarHomeScreen(homeViewModel.logUser, { homeViewModel.removeSession() }, callbackNavControllerToLogin) },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -70,7 +75,7 @@ fun HomeScreen(
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-                ChatsHomeScreen(chatList, viewModel.logUser, callbackNavController)
+                ChatsHomeScreen(chatList, homeViewModel.logUser, callbackNavController)
             }
         }
         Box(
@@ -79,7 +84,7 @@ fun HomeScreen(
                 .padding(end = 25.dp, bottom = 40.dp),
             contentAlignment = Alignment.BottomEnd,
         ) {
-            AddContactButton(callbackNavController, viewModel)
+            AddContactButton(callbackNavController, homeViewModel)
         }
     }
 

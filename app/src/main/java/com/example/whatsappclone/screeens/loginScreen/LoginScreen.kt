@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 typealias CallbackNavControllerToHomeScreen = (String) -> Unit
@@ -80,7 +79,6 @@ fun LoginScreen(
                             }
 
                             LoginScreenViewModel.LoginStatedScreen.Loading -> {
-                                Unit
                                 println("loading")
                             }
 
@@ -91,16 +89,9 @@ fun LoginScreen(
 
                             LoginScreenViewModel.LoginStatedScreen.CorrectNumber-> {
                                 callbackNavControllerNavigationToHomeScreen.invoke("/${userLog.value}")
-                                scope.launch {
-                                    loginScreenViewModel.setPermission(isEnable = true)
-                                    loginScreenViewModel.setUser(userLog.value)
-                                }
                                 println("correct")
                             }
 
-                            else -> {
-                                Unit
-                            }
                         }
                     }
                 }

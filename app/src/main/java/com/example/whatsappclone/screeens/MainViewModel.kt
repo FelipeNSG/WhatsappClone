@@ -8,9 +8,15 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dataStore = DataStoreSingleton.getInstance(application)
-    var getUser: String? = null
+    private var getUser: String = ""
+    private var getAllowPass: Boolean = false
 
     init {
+        viewModelScope.launch {
+            dataStore.getIsEnableToPassToHomeScreen().collect() {
+                getAllowPass = it
+            }
+        }
         viewModelScope.launch {
             dataStore.getUser().collect() {
                 getUser = it
@@ -18,14 +24,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun setUser(userAccount: String) {
-        viewModelScope.launch {
-            dataStore.setUser(userAccount)
-        }
-    }
-
-    fun getUserId(): String? {
+    fun getUserId(): String {
         return getUser
     }
+
+    fun getPermissionToPass(): Boolean {
+        return getAllowPass
+    }
+
+    fun getAllow():Boolean{
+        return (getUser.isEmpty() && getAllowPass)  || (getUser.isNotEmpty() && getAllowPass)
+    }
+
+
 
 }

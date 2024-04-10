@@ -10,12 +10,12 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-object DataStoreSingleton{
-   private var dataStore: DataStoreManager? = null
+object DataStoreSingleton {
+    private var dataStore: DataStoreManager? = null
 
-    fun getInstance(context: Context):DataStoreManager{
-        if (dataStore == null){
-             dataStore = DataStoreManager(context)
+    fun getInstance(context: Context): DataStoreManager {
+        if (dataStore == null) {
+            dataStore = DataStoreManager(context)
         }
         return dataStore!!
     }
@@ -34,13 +34,12 @@ class DataStoreManager(private val context: Context) {
     suspend fun setIsEnableToPassToHomeScreen(isEnable: Boolean) {
         dataStore.edit { pref ->
             pref[PASS_TO_HOME_SCREEN] = isEnable
-            println(isEnable)
         }
 
     }
 
     fun getIsEnableToPassToHomeScreen(): Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[PASS_TO_HOME_SCREEN] ?: false
+        preferences[PASS_TO_HOME_SCREEN] ?: true
     }
 
 
@@ -53,8 +52,6 @@ class DataStoreManager(private val context: Context) {
     fun getUser(): Flow<String> = context.dataStore.data.map { preferences ->
         preferences[USER_ACCOUNT] ?: ""
     }
-
-
 
 
 }

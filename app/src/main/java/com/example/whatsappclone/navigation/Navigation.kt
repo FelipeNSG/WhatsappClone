@@ -25,27 +25,25 @@ import com.example.whatsappclone.screeens.registerScreen.RegisterScreenViewModel
 
 @Composable
 fun AppNavigation(
-  loginUser:String?,
-
+    loginUser: String,
+    allowPermission: Boolean,
 ) {
     val navController = rememberNavController()
     val fireStore = FireStoreManager()
     val dataStore = DataStoreSingleton.getInstance(LocalContext.current)
-
     NavHost(
         navController = navController,
+        startDestination = if (allowPermission && loginUser.isNotEmpty()) {
+            AppScreen.HomeScreen.route + "/${loginUser}"
+        } else AppScreen.LoginScreen.route
 
-        startDestination = if (loginUser == null) {
-            AppScreen.LoginScreen.route
-        } else AppScreen.HomeScreen.route + "/${loginUser}"
     ) {
-
 
         composable(
             AppScreen.LoginScreen.route
         ) {
             val loginScreenViewModel: LoginScreenViewModel =
-                viewModel(factory = MyViewModelFactoryLoginScreen(fireStore, dataStore))
+                viewModel(factory = MyViewModelFactoryLoginScreen(fireStore))
             LoginScreen(
                 loginScreenViewModel,
                 {
@@ -66,9 +64,9 @@ fun AppNavigation(
             )
 
         ) {
-            val userLog: String = it.arguments?.getString("userLog") ?: loginUser ?: "Unknown"
+            val userLog: String = it.arguments?.getString("userLog") ?: loginUser
             val homeScreenViewModel: HomeViewModel =
-                viewModel(factory = MyViewModelFactory(userLog, fireStore))
+                viewModel(factory = MyViewModelFactory(userLog, fireStore, dataStore))
             HomeScreen(
                 homeScreenViewModel,
                 { navController.navigate(route = AppScreen.LoginScreen.route) }

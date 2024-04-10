@@ -16,17 +16,27 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         super.onCreate(savedInstanceState)
-
         val sp = installSplashScreen()
-        sp.setKeepOnScreenCondition(){
-            setContent {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    AppNavigation(viewModel.getUserId())
+        sp.setKeepOnScreenCondition{
+            if (viewModel.getPermissionToPass()){
+                setContent {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        AppNavigation(
+                            viewModel.getUserId(),
+                            viewModel.getPermissionToPass()
+                        ).apply {
+                            println(viewModel.getUserId())
+                            println(viewModel.getPermissionToPass())
+                        }
+                    }
                 }
             }
-            return@setKeepOnScreenCondition !(viewModel.getUser != null)
+            return@setKeepOnScreenCondition !viewModel.getPermissionToPass()
         }
     }
+
 }
+
+

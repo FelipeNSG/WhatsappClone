@@ -2,24 +2,9 @@ package com.example.whatsappclone.screeens.loginScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.example.whatsappclone.data.FireStoreManager
-import com.example.whatsappclone.dataStore.DataStoreManager
-import kotlinx.coroutines.launch
 
-class LoginScreenViewModel(private val fireStore: FireStoreManager, private val dataStore: DataStoreManager) : ViewModel() {
-
-    fun setPermission(isEnable:Boolean){
-        viewModelScope.launch {
-            dataStore.setIsEnableToPassToHomeScreen(isEnable)
-        }
-    }
-
-    fun setUser(userAccount:String){
-        viewModelScope.launch {
-            dataStore.setUser(userAccount)
-        }
-    }
+class LoginScreenViewModel(private val fireStore: FireStoreManager) : ViewModel() {
 
     fun consulterUser (
         phoneNumberUser:String,
@@ -59,10 +44,10 @@ class LoginScreenViewModel(private val fireStore: FireStoreManager, private val 
 
 }
 
-class MyViewModelFactoryLoginScreen (private val fireStore: FireStoreManager, private val dataStore: DataStoreManager) : ViewModelProvider.Factory {
+class MyViewModelFactoryLoginScreen (private val fireStore: FireStoreManager) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return if (modelClass.isAssignableFrom(LoginScreenViewModel::class.java)) {
-            LoginScreenViewModel(fireStore, dataStore) as T
+            LoginScreenViewModel(fireStore) as T
 
         } else throw Exception("Error Factory")
     }

@@ -16,14 +16,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.whatsappclone.screeens.homeScreen.CallbackNavControllerNavigationToChatScreen
+import com.example.whatsappclone.screeens.homeScreen.CallbackNavControllerNavigationToLoginScreen
+import com.example.whatsappclone.screeens.homeScreen.CallbackRemoveSession
 import com.example.whatsappclone.ui.theme.fontFamilyMonserrat
+
 
 @Composable
 fun AppBarHomeScreen(
-    userLog: String,
-    callbackNavController: CallbackNavControllerNavigationToChatScreen
+    userLog:String,
+    removeSession: CallbackRemoveSession,
+    callbackNavController: CallbackNavControllerNavigationToLoginScreen
 ) {
+
     Row(
         Modifier
             .fillMaxWidth()
@@ -49,7 +53,8 @@ fun AppBarHomeScreen(
         ) {
             IconButton(
                 onClick = {
-
+                    removeSession.invoke()
+                    callbackNavController.invoke()
                 },
             ) {
                 Icon(
