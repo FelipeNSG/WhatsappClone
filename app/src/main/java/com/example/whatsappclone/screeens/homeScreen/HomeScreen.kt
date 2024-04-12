@@ -174,7 +174,7 @@ fun ChatsHomeScreen(
 
         if (chatList.isNotEmpty()) {
             items(chatList.size) { chatData ->
-                ChatListItem(chatList[chatData], logUser, callbackNavController)
+                ChatListItem(chatList[chatList.size - (chatData+1)], logUser, callbackNavController)
             }
         }
     }

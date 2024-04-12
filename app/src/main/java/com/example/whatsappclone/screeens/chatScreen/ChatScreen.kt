@@ -222,6 +222,7 @@ fun ShowSendButton(
                         }
                     }
                 }
+
             } else {
                 chatScreenViewModel.sendMessage(
                     chatScreenViewModel.userLogPhoneAccount,
@@ -248,20 +249,26 @@ fun ChatBox(
     val chatList by chatScreenViewModel.getChat().collectAsState(emptyList())
     if (chatList.isNotEmpty()) {
         LazyColumn(
+            reverseLayout = true
         ) {
-                items(chatList.first().messages.size) {
-                    if (chatScreenViewModel.userLogPhoneAccount == chatList.first().messages[it].user){
-                        ChatMessageTest1(message =  chatList.first().messages[it].content)
-                    } else {
+            items(chatList.first().messages.size) {
+                if (chatScreenViewModel.userLogPhoneAccount == chatList.first().messages[(chatList.first().messages.size) - (it+1)].user) {
+                    ChatMessageTest1(message = chatList.first().messages[(chatList.first().messages.size) - (it+1)].content)
+                } else {
 
-                        if (chatScreenViewModel.userLogPhoneAccount == chatList.first().userAccount1.numberPhone.toString()){
-                            ChatTesting2(message = chatList.first().messages[it].content, chatList.first().userAccount2.userImage)
-                        }
-                        else{
-                            ChatTesting2(message = chatList.first().messages[it].content, chatList.first().userAccount1.userImage)
-                        }
+                    if (chatScreenViewModel.userLogPhoneAccount == chatList.first().userAccount1.numberPhone.toString()) {
+                        ChatTesting2(
+                            message = chatList.first().messages[(chatList.first().messages.size) - (it+1)].content,
+                            chatList.first().userAccount2.userImage
+                        )
+                    } else {
+                        ChatTesting2(
+                            message = chatList.first().messages[(chatList.first().messages.size) - (it+1)].content,
+                            chatList.first().userAccount1.userImage
+                        )
                     }
                 }
+            }
         }
     }
 }
@@ -275,59 +282,7 @@ fun ChatMessageTest1(message: String) {
         horizontalArrangement = Arrangement.Center
 
     ) {
-        /*Card(
-            colors = CardDefaults.cardColors(
-                containerColor = colorButtonBlue
-            ),
-            shape = CircleShape
-        ) {
-            Text(
-                text = "",
-                modifier = Modifier.padding(10.dp),
-                color = Color.White
-            )
-        }*/
     }
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(5.dp),
-        horizontalArrangement = Arrangement.End,
-    ) {
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = colorChatGreen
-            ),
-        ) {
-            Text(
-                text = message,
-                modifier = Modifier.padding(10.dp)
-            )
-        }
-    }
-    /*  Row(
-          modifier = Modifier
-              .fillMaxSize()
-              .padding(5.dp),
-          horizontalArrangement = Arrangement.End,
-      ) {
-          Card(
-              shape = RoundedCornerShape(
-                  topStart = 12.dp,
-                  topEnd = 12.dp,
-                  bottomStart = 12.dp,
-                  bottomEnd = 0.dp
-              ),
-              colors = CardDefaults.cardColors(
-                  containerColor = colorChatGreen
-              ),
-          ) {
-              Text(
-                  text = "Are you there?",
-                  modifier = Modifier.padding(10.dp)
-              )
-          }
-      }*/
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -347,11 +302,29 @@ fun ChatMessageTest1(message: String) {
             tint = colorBlueChat
         )
     }
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(5.dp),
+        horizontalArrangement = Arrangement.End,
+    ) {
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = colorChatGreen
+            ),
+        ) {
+            Text(
+                text = message,
+                modifier = Modifier.padding(10.dp)
+            )
+        }
+    }
+
 
 }
 
 @Composable
-fun ChatTesting2(message:String,  imageUrl: String) {
+fun ChatTesting2(message: String, imageUrl: String) {
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -369,7 +342,8 @@ fun ChatTesting2(message:String,  imageUrl: String) {
                 containerColor = colorGreyChat
             ),
         ) {
-            Text(message,
+            Text(
+                message,
                 modifier = Modifier.padding(10.dp)
             )
         }
