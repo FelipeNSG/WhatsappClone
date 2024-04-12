@@ -22,13 +22,13 @@ class ChatScreenViewModel(
 ) : ViewModel() {
 
     suspend fun getImage(): String {
-        var imageUrl: String = "esto es la variable"
+        var imageUrl = "This is a URL"
         val chatList = getChat().first()
         if (chatList.isNotEmpty()) {
-            if (chatList.first().userAccount1.numberPhone.toString() != userLogPhoneAccount) {
-                imageUrl = chatList.first().userAccount1.userImage
+            imageUrl = if (chatList.first().userAccount1.numberPhone.toString() != userLogPhoneAccount) {
+                chatList.first().userAccount1.userImage
             } else {
-                imageUrl = chatList.first().userAccount2.userImage
+                chatList.first().userAccount2.userImage
             }
         }
         return imageUrl
@@ -36,10 +36,11 @@ class ChatScreenViewModel(
 
 
     fun getChat(): Flow<List<ChatBoxObject>> {
-        return when(idDocument != "noIdDocument"){
+        return when (idDocument != "noIdDocument") {
             true -> {
                 fireStoreManager.fetchChat(idDocument)
             }
+
             false -> {
                 fireStoreManager.fetchChatWithoutId(numberContact, userLogPhoneAccount)
             }
@@ -143,12 +144,14 @@ class ChatScreenViewModel(
         numberContactToSendMessage: String,
         message: String
     ) {
-        val messageToSend = Message(user = userPhoneAccount, content = message)
-        fireStoreManager.sendMessageToChat(
-            userPhoneAccount,
-            numberContactToSendMessage,
-            messageToSend
-        )
+        if (message.isNotBlank()) {
+            val messageToSend = Message(user = userPhoneAccount, content = message)
+            fireStoreManager.sendMessageToChat(
+                userPhoneAccount,
+                numberContactToSendMessage,
+                messageToSend
+            )
+        }
     }
 
     sealed class ChatScreenStated {

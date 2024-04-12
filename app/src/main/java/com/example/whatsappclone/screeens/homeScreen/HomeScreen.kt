@@ -58,12 +58,18 @@ fun HomeScreen(
     callbackNavControllerToLogin: CallbackNavControllerNavigationToLoginScreen,
     callbackNavController: CallbackNavControllerNavigationToChatScreen,
 ) {
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         homeViewModel.sendDataToDataStore()
     }
     val chatList by homeViewModel.getChatList().collectAsState(emptyList())
     Scaffold(
-        topBar = { AppBarHomeScreen(homeViewModel.logUser, { homeViewModel.removeSession() }, callbackNavControllerToLogin) },
+        topBar = {
+            AppBarHomeScreen(
+                homeViewModel.logUser,
+                { homeViewModel.removeSession() },
+                callbackNavControllerToLogin
+            )
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -87,7 +93,6 @@ fun HomeScreen(
             AddContactButton(callbackNavController, homeViewModel)
         }
     }
-
 }
 
 @Composable
@@ -312,21 +317,24 @@ fun OnClickContactAddButton(
                         openDialog.value = false
                         openDialogCallBack(openDialog.value)
                         textOfNote = ""
-                        viewModel.userConsulting(
+                        viewModel.verify(
+                            logUser = viewModel.logUser,
                             numberPhoneContact = contactToAdd.value
-                        ) { requestStated ->
-                            when (requestStated) {
+                        ){ statedResult ->
+                            when(statedResult){
                                 HomeViewModel.HomeScreenStated.CorrectNumber -> {
                                     callbackNavController.invoke(
                                         "/${contactToAdd.value}/${name.value}/${viewModel.logUser}/noIdDocument"
                                     )
                                 }
-
                                 else -> {
-                                    Unit
+                                    openDialog.value = false
+                                    openDialogCallBack(openDialog.value)
+                                    textOfNote = ""
                                 }
                             }
                         }
+
                     },
 
                     ) {

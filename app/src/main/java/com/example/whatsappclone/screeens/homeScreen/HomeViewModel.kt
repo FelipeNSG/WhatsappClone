@@ -8,6 +8,8 @@ import com.example.whatsappclone.data.moldel.ChatBoxObject
 import com.example.whatsappclone.dataStore.DataStoreManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 class HomeViewModel(
     val logUser: String,
@@ -15,54 +17,104 @@ class HomeViewModel(
     private val dataStore: DataStoreManager
 ) : ViewModel() {
 
-    fun sendDataToDataStore(){
+    fun sendDataToDataStore() {
         viewModelScope.launch {
             dataStore.setUser(logUser)
             dataStore.setIsEnableToPassToHomeScreen(true)
         }
     }
 
-    fun removeSession(){
+    fun removeSession() {
         viewModelScope.launch {
             dataStore.setUser("")
         }
     }
+
+    suspend fun consulterChat(
+        logUser: String,
+        numberPhoneContact: String,
+    ): HomeScreenStated = suspendCancellableCoroutine { continuation ->
+        fireStore.consulterChat(
+            logUser,
+            numberPhoneContact
+        ) { fireStoreManagerState ->
+            when (fireStoreManagerState) {
+                FireStoreManager.FireStoreManagerState.ChatFound -> {
+                    continuation.resume(HomeScreenStated.TheChatAlreadyExist)
+                }
+
+                FireStoreManager.FireStoreManagerState.ChatNotFound -> {
+                    continuation.resume(HomeScreenStated.CorrectNumber)
+                }
+
+                FireStoreManager.FireStoreManagerState.Error -> {
+                    continuation.resume(HomeScreenStated.ErrorConnexion)
+                }
+
+                FireStoreManager.FireStoreManagerState.Loading -> {
+                    continuation.resume(HomeScreenStated.Loading)
+
+                }
+            }
+        }
+    }
+
+    fun verify(
+        logUser: String,
+        numberPhoneContact: String,
+        callbackSated: (HomeScreenStated) -> Unit
+    ) {
+        var stated: HomeScreenStated = HomeScreenStated.Loading
+        viewModelScope.launch {
+            val userConsultResult = userConsulting(numberPhoneContact)
+            if (userConsultResult == HomeScreenStated.CorrectNumber) {
+                val consulterChatResult = consulterChat(logUser, numberPhoneContact)
+                stated = if (consulterChatResult == HomeScreenStated.TheChatAlreadyExist) {
+                    HomeScreenStated.TheChatAlreadyExist
+                } else {
+                    HomeScreenStated.CorrectNumber
+                }
+            } else {
+                stated = HomeScreenStated.ErrorConnexion
+                callbackSated(stated)
+            }
+            callbackSated(stated)
+        }
+    }
+
     fun getChatList(): Flow<List<ChatBoxObject>> {
         return fireStore.getListChatBox(logUser)
     }
 
-    fun userConsulting(
+    private suspend fun userConsulting(
         numberPhoneContact: String,
-        callBack: (HomeScreenStated) -> Unit
-    ) {
-        var sated: HomeScreenStated = HomeScreenStated.Loading
+    ): HomeScreenStated = suspendCancellableCoroutine { continuation ->
         if (logUser != numberPhoneContact) {
-            callBack(sated)
+            println("hellegado aqui")
             fireStore.fetchIfUserExist(
                 numberPhoneContact,
             ) { statedFireStore ->
-                sated = when (statedFireStore) {
+                when (statedFireStore) {
+
                     FireStoreManager.FireStoreManagerUserConsultState.Error -> {
-                        HomeScreenStated.ErrorConnexion
+                        continuation.resume(HomeScreenStated.ErrorConnexion)
                     }
 
                     FireStoreManager.FireStoreManagerUserConsultState.Loading -> {
-                        HomeScreenStated.Loading
+                        continuation.resume(HomeScreenStated.Loading)
                     }
 
                     FireStoreManager.FireStoreManagerUserConsultState.UserNotFound -> {
-                        HomeScreenStated.IncorrectNumber
+                        continuation.resume(HomeScreenStated.IncorrectNumber)
                     }
 
                     FireStoreManager.FireStoreManagerUserConsultState.UserFound -> {
-                        HomeScreenStated.CorrectNumber
-
+                        continuation.resume(HomeScreenStated.CorrectNumber)
                     }
                 }
-                callBack(sated)
             }
         } else {
-            callBack(HomeScreenStated.IncorrectNumber)
+            HomeScreenStated.IncorrectNumber
         }
     }
 
@@ -71,6 +123,7 @@ class HomeViewModel(
         data object CorrectNumber : HomeScreenStated()
         data object IncorrectNumber : HomeScreenStated()
         data object ErrorConnexion : HomeScreenStated()
+        data object TheChatAlreadyExist : HomeScreenStated()
     }
 }
 

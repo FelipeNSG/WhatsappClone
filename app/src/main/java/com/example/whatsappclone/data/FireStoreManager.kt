@@ -22,7 +22,7 @@ class FireStoreManager {
     }
 
     suspend fun createChatBox(chatBox: ChatBoxObject) {
-       fireStore.collection("chats").add(chatBox).await()
+        fireStore.collection("chats").add(chatBox).await()
     }
 
     fun fetchUserAccount(
@@ -59,8 +59,8 @@ class FireStoreManager {
         numberPhone: String,
         callBack: (FireStoreManagerUserConsultState) -> Unit
     ) {
-        var stated: FireStoreManagerUserConsultState = FireStoreManagerUserConsultState.Loading
-        callBack(stated)
+        var stated: FireStoreManagerUserConsultState = FireStoreManagerUserConsultState.Error
+        /*callBack(stated)*/
         try {
             fireStore.collection("users")
                 .whereEqualTo("numberPhone", numberPhone.toLong())
@@ -75,8 +75,10 @@ class FireStoreManager {
                                 FireStoreManagerUserConsultState.UserFound
                             }
                         }
-                        callBack(stated)
+                    } else {
+                        stated = FireStoreManagerUserConsultState.Error
                     }
+                    callBack(stated)
                 }
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -91,7 +93,6 @@ class FireStoreManager {
         callBack: (FireStoreManagerState) -> Unit
     ) {
         var stated: FireStoreManagerState = FireStoreManagerState.Loading
-        callBack(stated)
         val docRef = fireStore.collection("chats")
         docRef.where(
             Filter.and(
@@ -111,16 +112,17 @@ class FireStoreManager {
                     val document = task.result
                     if (document != null) {
                         stated = if (document.isEmpty) {
-                            println("No Se encontro el documento")
+                            println("No Se encontro el documento del chat")
                             FireStoreManagerState.ChatNotFound
                         } else {
-                            println("sii Se encontro el documento")
+                            println("sii Se encontro el documento del chat")
 
                             FireStoreManagerState.ChatFound
                         }
                         callBack(stated)
                     }
-
+                }else{
+                    stated = FireStoreManagerState.Error
                 }
             }
             .addOnFailureListener { exception ->
@@ -214,7 +216,7 @@ class FireStoreManager {
                 println("Listen failed: $e")
                 return@addSnapshotListener
             }
-            var chatList = mutableListOf<ChatBoxObject>()
+            val chatList = mutableListOf<ChatBoxObject>()
             snapshot?.let { querySnapshot ->
                 for (document in querySnapshot.documents) {
                     if (document.exists()) {
