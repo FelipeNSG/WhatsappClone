@@ -16,9 +16,9 @@ import com.example.whatsappclone.screeens.chatScreen.MyViewModelFactoryChatScree
 import com.example.whatsappclone.screeens.homeScreen.HomeScreen
 import com.example.whatsappclone.screeens.homeScreen.HomeViewModel
 import com.example.whatsappclone.screeens.homeScreen.MyViewModelFactory
-import com.example.whatsappclone.screeens.loginScreen.LoginScreen
 import com.example.whatsappclone.screeens.loginScreen.LoginScreenViewModel
 import com.example.whatsappclone.screeens.loginScreen.MyViewModelFactoryLoginScreen
+import com.example.whatsappclone.screeens.loginScreen.PhoneNumberAuthorizationScreen
 import com.example.whatsappclone.screeens.registerScreen.MyViewModelFactoryRegisterScreen
 import com.example.whatsappclone.screeens.registerScreen.RegisterScreen
 import com.example.whatsappclone.screeens.registerScreen.RegisterScreenViewModel
@@ -44,7 +44,7 @@ fun AppNavigation(
         ) {
             val loginScreenViewModel: LoginScreenViewModel =
                 viewModel(factory = MyViewModelFactoryLoginScreen(fireStore))
-            LoginScreen(
+            PhoneNumberAuthorizationScreen(
                 loginScreenViewModel,
                 {
                     navController.navigate(route = AppScreen.HomeScreen.route + it)

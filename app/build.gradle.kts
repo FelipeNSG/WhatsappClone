@@ -48,16 +48,21 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
 }
 
+
+
 dependencies {
+    //jetpack_compose_country
+    implementation("com.github.JoelKanyi:KomposeCountryCodePicker:1.0.9")
+    implementation("androidx.compose.material3:material3:1.2.1")
     //FireBase
     implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
     implementation("com.google.firebase:firebase-firestore")
     //SPLASH SCREEN
     implementation("androidx.core:core-splashscreen:1.0.1")
     //viewModel
-// ViewModel
     val lifecycle_version = "2.7.0"
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
     // ViewModel utilities for Compose
@@ -82,10 +87,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version")
 
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation ("androidx.compose.foundation:foundation")
-    implementation ("androidx.compose.material:material-icons-core")
-    implementation ("androidx.compose.material:material-icons-extended")
-    implementation ("androidx.compose.ui:ui-text-google-fonts:1.6.5")
+    implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.compose.material:material-icons-core")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.5")
     implementation("androidx.datastore:datastore-preferences:1.0.0") //dataStore
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("androidx.core:core-ktx:1.12.0")

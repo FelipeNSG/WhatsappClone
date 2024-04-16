@@ -19,7 +19,7 @@ typealias CallbackNavControllerToHomeScreen = (String) -> Unit
 typealias CallbackNavControllerToRegisterScreen = () -> Unit
 
 @Composable
-fun LoginScreen(
+fun PhoneNumberAuthorizationScreen(
     loginScreenViewModel: LoginScreenViewModel,
     callbackNavControllerNavigationToHomeScreen: CallbackNavControllerToHomeScreen,
     callbackNavControllerNavigationToRegisterScreen: CallbackNavControllerToRegisterScreen
@@ -107,4 +107,3 @@ fun LoginScreen(
         )
     }
 }
-
