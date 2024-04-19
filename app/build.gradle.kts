@@ -58,8 +58,10 @@ dependencies {
     implementation("com.github.JoelKanyi:KomposeCountryCodePicker:1.0.9")
     implementation("androidx.compose.material3:material3:1.2.1")
     //FireBase
-    implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
     implementation("com.google.firebase:firebase-firestore")
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-auth")
     //SPLASH SCREEN
     implementation("androidx.core:core-splashscreen:1.0.1")
     //viewModel

@@ -10,8 +10,8 @@ import kotlinx.coroutines.launch
 class RegisterScreenViewModel(private val fireStore: FireStoreManager) : ViewModel() {
 
     private suspend fun userRegister(accountNumber: Long) {
-        val newUser = UserAccount(accountNumber)
-        fireStore.createUser(newUser)
+        val newUser = UserAccount(accountNumber.toString())
+        fireStore.createUser(newUser){}
     }
 
     fun checkNumbersAndRegister(

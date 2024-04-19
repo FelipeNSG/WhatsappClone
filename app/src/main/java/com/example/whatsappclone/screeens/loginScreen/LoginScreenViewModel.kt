@@ -1,53 +1,52 @@
 package com.example.whatsappclone.screeens.loginScreen
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.whatsappclone.data.AuthenticationFirebaseManager
 import com.example.whatsappclone.data.FireStoreManager
 
-class LoginScreenViewModel(private val fireStore: FireStoreManager) : ViewModel() {
+class LoginScreenViewModel(
+    private val fireStore: FireStoreManager,
+    private val firebaseAuth: AuthenticationFirebaseManager
+) : ViewModel() {
 
-    fun consulterUser (
-        phoneNumberUser:String,
-        callBack:(LoginStatedScreen) -> Unit
-    ){
-        var stated:LoginStatedScreen = LoginStatedScreen.Loading
-        callBack(stated)
-        fireStore.fetchIfUserExist(phoneNumberUser){
-            consulterStated ->
-            stated = when(consulterStated){
-                FireStoreManager.FireStoreManagerUserConsultState.Error -> {
-                    LoginStatedScreen.ErrorConnexion
-                }
-
-                FireStoreManager.FireStoreManagerUserConsultState.Loading -> {
-                    LoginStatedScreen.Loading
-                }
-
-                FireStoreManager.FireStoreManagerUserConsultState.UserNotFound-> {
-                    LoginStatedScreen.IncorrectNumber
-                }
-
-                FireStoreManager.FireStoreManagerUserConsultState.UserFound -> {
-                    LoginStatedScreen.CorrectNumber
-                }
-            }
-            callBack(stated)
+    fun checkNumber(
+        numberPhone: String,
+        numberPhoneWithLada: String,
+        context: Context,
+        onCodeSent: (String) -> Unit
+    ): Boolean {
+        val validNumber: Boolean = try {
+            val validationNumberPhone = numberPhone.toString()
+            true
+        } catch (_: Exception) {
+            false
+        }
+        return if (numberPhone.isNotBlank() && validNumber) {
+            onLoginClicked(context, numberPhoneWithLada, onCodeSent)
+            true
+        } else {
+            false
         }
     }
 
-    sealed class LoginStatedScreen {
-        data object Loading : LoginStatedScreen()
-        data object CorrectNumber : LoginStatedScreen()
-        data object IncorrectNumber : LoginStatedScreen()
-        data object ErrorConnexion : LoginStatedScreen()
+    private fun onLoginClicked(
+        context: Context,
+        phoneNumberWithLada: String,
+        onCodeSent: (String) -> Unit
+    ) {
+        firebaseAuth.onLoginClicked(context, phoneNumberWithLada, onCodeSent)
     }
-
 }
 
-class MyViewModelFactoryLoginScreen (private val fireStore: FireStoreManager) : ViewModelProvider.Factory {
+class MyViewModelFactoryLoginScreen(
+    private val fireStore: FireStoreManager,
+    private val firebaseAuth: AuthenticationFirebaseManager
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return if (modelClass.isAssignableFrom(LoginScreenViewModel::class.java)) {
-            LoginScreenViewModel(fireStore) as T
+            LoginScreenViewModel(fireStore, firebaseAuth) as T
 
         } else throw Exception("Error Factory")
     }

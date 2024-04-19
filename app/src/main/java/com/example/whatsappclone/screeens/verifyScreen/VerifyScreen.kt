@@ -1,5 +1,6 @@
-package com.example.whatsappclone.screeens.loginScreen
+package com.example.whatsappclone.screeens.verifyScreen
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,12 +43,104 @@ import com.example.whatsappclone.R
 import com.example.whatsappclone.ui.theme.GreenButtons
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
 
+typealias CallbackNavigationToRegisterUserNameScreen = (String) -> Unit
+@Composable
+fun OTP_VerifyScreen(
+    verifyScreenViewModel: VerifyScreenViewModel,
+    callbackNavigationToRegisterUserNameScreen: CallbackNavigationToRegisterUserNameScreen
+) {
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val focusManager = LocalFocusManager.current
+    val time =  remember { mutableIntStateOf(60) }
+    val maxText = remember { mutableIntStateOf(6) }
+    var text by remember { mutableStateOf(TextFieldValue(""))}
+    val context:Context = LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(top = 50.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = {
+                    focusManager.clearFocus()
+                }
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(30.dp)
+    ) {
+
+        Image(
+            modifier = Modifier.size(150.dp),
+            painter = painterResource(id = R.drawable.password_verify),
+            contentDescription = "Image_password",
+        )
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            Column {
+                Text(
+                    text = "Enter OTP send to your phone number",
+                    fontSize = 20.sp
+                )
+            }
+            OutlinedTextField(
+                modifier = Modifier.width(200.dp),
+                value = text,
+                label = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(text = "Verification code")
+                    }
+                },
+                onValueChange = {
+                    if (it.text.length <= maxText.intValue) text = it
+                },
+                maxLines = 1,
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                shape = MaterialTheme.shapes.medium,
+                colors = TextFieldDefaults.colors(
+                    unfocusedIndicatorColor = Color.Gray,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = GreenButtons, // Este es el margen que rodea el textfield
+                )
+            )
+            Button(
+                modifier = Modifier.width(120.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = GreenWhatsapp),
+                onClick = {
+                        verifyScreenViewModel.verifyPhoneNumberWithCode(context, text.text)
+                        callbackNavigationToRegisterUserNameScreen.invoke("/${verifyScreenViewModel.numberPhoneUser}")
+                }
+            ) {
+                Text(
+                    text = "Verify",
+                    fontSize = 20.sp
+                )
+            }
+            Text(text = "Resent TOP in ${time.intValue}", color = Color.Gray)
+        }
+    }
+}
+
 @Composable
 @Preview
-fun OtpScreen(
+fun OTP_VerifyScreenPreview(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
+    val time =  remember {
+        mutableIntStateOf(60)
+    }
     val maxText = remember {
         mutableIntStateOf(6)
     }
@@ -82,7 +176,7 @@ fun OtpScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Column() {
+            Column {
                 Text(
                     text = "Enter OTP send to your phone number",
                     fontSize = 20.sp
@@ -124,6 +218,7 @@ fun OtpScreen(
                     fontSize = 20.sp
                 )
             }
+            Text(text = "Resent TOP in ${time.intValue}", color = Color.Gray)
         }
     }
 }

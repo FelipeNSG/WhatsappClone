@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.whatsappclone.data.AuthenticationFirebaseManager
 import com.example.whatsappclone.data.FireStoreManager
 import com.example.whatsappclone.dataStore.DataStoreSingleton
 import com.example.whatsappclone.screeens.chatScreen.ChatScreen
@@ -16,12 +17,15 @@ import com.example.whatsappclone.screeens.chatScreen.MyViewModelFactoryChatScree
 import com.example.whatsappclone.screeens.homeScreen.HomeScreen
 import com.example.whatsappclone.screeens.homeScreen.HomeViewModel
 import com.example.whatsappclone.screeens.homeScreen.MyViewModelFactory
+import com.example.whatsappclone.screeens.loginScreen.LogInScreen
 import com.example.whatsappclone.screeens.loginScreen.LoginScreenViewModel
 import com.example.whatsappclone.screeens.loginScreen.MyViewModelFactoryLoginScreen
-import com.example.whatsappclone.screeens.loginScreen.PhoneNumberAuthorizationScreen
-import com.example.whatsappclone.screeens.registerScreen.MyViewModelFactoryRegisterScreen
-import com.example.whatsappclone.screeens.registerScreen.RegisterScreen
-import com.example.whatsappclone.screeens.registerScreen.RegisterScreenViewModel
+import com.example.whatsappclone.screeens.registerUserNameScreen.MyViewModelFactoryRegisterUserNameScreenViewModel
+import com.example.whatsappclone.screeens.registerUserNameScreen.RegisterUserNameScreen
+import com.example.whatsappclone.screeens.registerUserNameScreen.RegisterUserNameScreenViewModel
+import com.example.whatsappclone.screeens.verifyScreen.MyViewModelFactoryVerifyScreen
+import com.example.whatsappclone.screeens.verifyScreen.OTP_VerifyScreen
+import com.example.whatsappclone.screeens.verifyScreen.VerifyScreenViewModel
 
 @Composable
 fun AppNavigation(
@@ -30,29 +34,66 @@ fun AppNavigation(
 ) {
     val navController = rememberNavController()
     val fireStore = FireStoreManager()
+    val firebaseAuth = AuthenticationFirebaseManager()
     val dataStore = DataStoreSingleton.getInstance(LocalContext.current)
     NavHost(
         navController = navController,
-        startDestination = if (allowPermission && loginUser.isNotEmpty()) {
-            AppScreen.HomeScreen.route + "/${loginUser}"
-        } else AppScreen.LoginScreen.route
-
+        startDestination = AppScreen.LoginScreen.route
     ) {
-
         composable(
             AppScreen.LoginScreen.route
         ) {
             val loginScreenViewModel: LoginScreenViewModel =
-                viewModel(factory = MyViewModelFactoryLoginScreen(fireStore))
-            PhoneNumberAuthorizationScreen(
+                viewModel(factory = MyViewModelFactoryLoginScreen(fireStore, firebaseAuth))
+            LogInScreen(
                 loginScreenViewModel,
-                {
-                    navController.navigate(route = AppScreen.HomeScreen.route + it)
+            ) {
+                navController.navigate(route = AppScreen.VerifyScreen.route + it)
+            }
+        }
+
+        composable(
+            AppScreen.VerifyScreen.route + "/{storedVerificationId}/{numberPhone}",
+            arguments = listOf(
+                navArgument(name = "storedVerificationId") {
+                    type = NavType.StringType
                 },
-                {
-                    navController.navigate(route = AppScreen.RegisterScreen.route)
+                navArgument(name = "numberPhone"){
+                    type = NavType.StringType
                 }
             )
+        ) {
+            val storedVerificationId = it.arguments?.getString("storedVerificationId") ?: "no_IdFound"
+            val numberPhone = it.arguments?.getString("numberPhone")?: "no_numberPhone"
+            val verifyScreenViewModel: VerifyScreenViewModel =
+                viewModel(
+                    factory = MyViewModelFactoryVerifyScreen(
+                        numberPhone,
+                        fireStore,
+                        firebaseAuth,
+                        storedVerificationId
+                    )
+                )
+            OTP_VerifyScreen(
+                verifyScreenViewModel,
+            ) {
+                navController.navigate(route = AppScreen.RegisterUserNameScreen.route + it)
+            }
+        }
+
+        composable(
+            AppScreen.RegisterUserNameScreen.route + "/{numberPhone}",
+            arguments = listOf(
+                navArgument(name = "numberPhone"){
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            val userNumberPhone = it.arguments?.getString("numberPhone")?: "no_numberPhone"
+            val registerUserNameScreenViewModel: RegisterUserNameScreenViewModel = viewModel(factory = MyViewModelFactoryRegisterUserNameScreenViewModel(userNumberPhone, fireStore, firebaseAuth))
+            RegisterUserNameScreen(registerUserNameScreenViewModel){dataPath ->
+                navController.navigate(route = AppScreen.HomeScreen.route + dataPath)
+            }
         }
 
         composable(
@@ -69,19 +110,8 @@ fun AppNavigation(
                 viewModel(factory = MyViewModelFactory(userLog, fireStore, dataStore))
             HomeScreen(
                 homeScreenViewModel,
-                { navController.navigate(route = AppScreen.LoginScreen.route) }
-            )
-            { sendVariables -> navController.navigate(route = AppScreen.ChatScreen.route + sendVariables) }
-        }
+            ){ navController.navigate(route = AppScreen.LoginScreen.route) }
 
-        composable(AppScreen.RegisterScreen.route) {
-            val registerScreenViewModel: RegisterScreenViewModel =
-                viewModel(factory = MyViewModelFactoryRegisterScreen(fireStore))
-            RegisterScreen(
-                registerScreenViewModel
-            ) {
-                navController.navigate(route = AppScreen.HomeScreen.route + it)
-            }
         }
 
         composable(

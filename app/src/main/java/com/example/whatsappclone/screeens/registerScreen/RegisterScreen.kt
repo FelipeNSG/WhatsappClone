@@ -14,8 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.whatsappclone.screeens.loginScreen.CallbackNavControllerToHomeScreen
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
+
+typealias CallbackNavControllerToHomeScreen = (String) -> Unit
+typealias CallbackNavControllerToRegisterScreen = () -> Unit
 
 @Composable
 fun RegisterScreen(

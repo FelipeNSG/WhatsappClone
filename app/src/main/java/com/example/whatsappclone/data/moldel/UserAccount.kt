@@ -1,8 +1,11 @@
 package com.example.whatsappclone.data.moldel
 
 data class UserAccount(
+    var id:String? = null,
     val numberPhone: Long = 0,
-    val userImage: String = imageRandom()
+    var userAlias:String = "",
+    val userImage: String = imageRandom(),
+    val userId:String? = null
 )
 
 class ChatBoxContacts(

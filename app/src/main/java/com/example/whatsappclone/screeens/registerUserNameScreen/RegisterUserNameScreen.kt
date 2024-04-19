@@ -1,4 +1,4 @@
-package com.example.whatsappclone.screeens.loginScreen
+package com.example.whatsappclone.screeens.registerUserNameScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,12 +32,87 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.whatsappclone.R
+import com.example.whatsappclone.screeens.registerScreen.CallbackNavControllerToHomeScreen
 import com.example.whatsappclone.ui.theme.GreenButtons
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
 
 @Composable
+fun RegisterUserNameScreen(
+    registerUserNameScreenViewModel: RegisterUserNameScreenViewModel,
+    callbackNavControllerToHomeScreen:CallbackNavControllerToHomeScreen
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val focusManager = LocalFocusManager.current
+    var text by remember {
+        mutableStateOf(
+            TextFieldValue("")
+        )
+    }
+    val maxText = remember {
+        mutableIntStateOf(15)
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(top = 50.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = {
+                    focusManager.clearFocus()
+                }
+            ),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            modifier = Modifier
+                .width(120.dp)
+                .height(140.dp),
+            painter = painterResource(id = R.drawable.image_user),
+            contentDescription = "Image_password",
+        )
+        Text(
+            text = "Enter you user name",
+            fontSize = 20.sp
+        )
+        OutlinedTextField(
+            value = text,
+            onValueChange = { if (it.text.length <= maxText.intValue) text = it },
+            placeholder = { Text(text = "Username") },
+            shape = MaterialTheme.shapes.extraLarge,
+            colors = TextFieldDefaults.colors(
+                unfocusedIndicatorColor = Color.Gray,
+                unfocusedContainerColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = GreenButtons, // Este es el margen que rodea el textfield
+            ),
+            maxLines = 1
+        )
+        Button(
+            modifier = Modifier.width(270.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = GreenWhatsapp),
+            onClick = {
+                if (text.text.isNotBlank()) {
+                    registerUserNameScreenViewModel.createUser(text.text){
+                        callbackNavControllerToHomeScreen.invoke("/${registerUserNameScreenViewModel.userNumberPhone}")
+                    }
+                }
+            }
+        ) {
+            Text(
+                text = "Register",
+                fontSize = 17.sp
+            )
+        }
+    }
+}
+
+
+@Composable
 @Preview
-fun RegisterUserNameScreen() {
+fun RegisterUserNameScreenPreview() {
     val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
     var text by remember {

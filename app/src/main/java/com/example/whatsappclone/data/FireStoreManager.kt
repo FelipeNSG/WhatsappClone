@@ -16,9 +16,9 @@ import kotlinx.coroutines.tasks.await
 class FireStoreManager {
     private val fireStore = FirebaseFirestore.getInstance()
 
-    suspend fun createUser(user: UserAccount) {
-        fireStore.collection("users").add(user).await()
-
+//These are the functions of Firestore
+     fun createUser(user: UserAccount, onSuccess: () -> Unit) {
+        fireStore.collection("users").add(user).isSuccessful.apply { onSuccess() }
     }
 
     suspend fun createChatBox(chatBox: ChatBoxObject) {

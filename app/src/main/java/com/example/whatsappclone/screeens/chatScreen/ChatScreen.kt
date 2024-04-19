@@ -192,11 +192,13 @@ fun ShowSendButton(
     val chatExist = remember {
         mutableStateOf(false)
     }
-    println(chatExist)
+    println(chatExist.value)
     IconButton(
         modifier = Modifier.size(40.dp),
         onClick = {
             if (!chatExist.value) {
+                println(chatScreenViewModel.userLogPhoneAccount)
+                println(chatScreenViewModel.numberContact)
                 chatScreenViewModel.checkIfAChatAlreadyExists(
                     chatScreenViewModel.userLogPhoneAccount,
                     chatScreenViewModel.numberContact,
@@ -205,12 +207,12 @@ fun ShowSendButton(
                 ) { statedFetchChat ->
                     when (statedFetchChat) {
                         ChatScreenViewModel.ChatScreenStated.FoundChat -> {
-                            chatExist.value = true
                             chatScreenViewModel.sendMessage(
                                 chatScreenViewModel.userLogPhoneAccount,
                                 chatScreenViewModel.numberContact,
                                 contentMessage
                             )
+                            chatExist.value = true
                         }
 
                         ChatScreenViewModel.ChatScreenStated.NotFountChat -> {

@@ -55,19 +55,18 @@ typealias CallbackRemoveSession = () -> Unit
 fun HomeScreen(
     homeViewModel
     : HomeViewModel,
-    callbackNavControllerToLogin: CallbackNavControllerNavigationToLoginScreen,
     callbackNavController: CallbackNavControllerNavigationToChatScreen,
 ) {
     LaunchedEffect(Unit) {
-        homeViewModel.sendDataToDataStore()
+       /* homeViewModel.sendDataToDataStore()*/
     }
     val chatList by homeViewModel.getChatList().collectAsState(emptyList())
     Scaffold(
         topBar = {
             AppBarHomeScreen(
                 homeViewModel.logUser,
-                { homeViewModel.removeSession() },
-                callbackNavControllerToLogin
+                { /*homeViewModel.removeSession()*/ },
+                {}
             )
         },
     ) { paddingValues ->
@@ -195,10 +194,10 @@ fun ChatListItem(
 
     if (logUser != chatData.userNameChatUserLog.numberPhone) {
         contactName.value = chatData.userNameChatUserLog.name
-        contactNumber.value = chatData.userAccount1.numberPhone.toString()
+        contactNumber.value = chatData.userNameChatUserLog.numberPhone
     } else {
         contactName.value = chatData.userNameChatContact.name
-        contactNumber.value = chatData.userAccount2.numberPhone.toString()
+        contactNumber.value = chatData.userNameChatContact.numberPhone
     }
 
     Row(

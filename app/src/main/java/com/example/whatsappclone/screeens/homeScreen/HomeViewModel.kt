@@ -17,7 +17,7 @@ class HomeViewModel(
     private val dataStore: DataStoreManager
 ) : ViewModel() {
 
-    fun sendDataToDataStore() {
+    /*fun sendDataToDataStore() {
         viewModelScope.launch {
             dataStore.setUser(logUser)
             dataStore.setIsEnableToPassToHomeScreen(true)
@@ -28,7 +28,7 @@ class HomeViewModel(
         viewModelScope.launch {
             dataStore.setUser("")
         }
-    }
+    }*/
 
     suspend fun consulterChat(
         logUser: String,
