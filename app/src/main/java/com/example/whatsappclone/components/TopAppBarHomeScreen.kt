@@ -24,10 +24,10 @@ import com.example.whatsappclone.ui.theme.fontFamilyMonserrat
 @Composable
 fun AppBarHomeScreen(
     userLog:String,
+    callbackNavController: CallbackNavControllerNavigationToLoginScreen,
     removeSession: CallbackRemoveSession,
-    callbackNavController: CallbackNavControllerNavigationToLoginScreen
-) {
 
+) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -53,13 +53,13 @@ fun AppBarHomeScreen(
         ) {
             IconButton(
                 onClick = {
-                    removeSession.invoke()
                     callbackNavController.invoke()
+                    removeSession.invoke()
                 },
             ) {
                 Icon(
                     imageVector = Icons.Default.Settings,
-                    contentDescription = "Icon",
+                    contentDescription = "Icon Settings",
                     tint = Color.Gray,
                     modifier = Modifier.size(20.dp)
                 )

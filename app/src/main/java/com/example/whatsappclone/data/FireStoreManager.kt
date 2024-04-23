@@ -97,12 +97,12 @@ class FireStoreManager {
         docRef.where(
             Filter.and(
                 Filter.or(
-                    Filter.equalTo("userAccount1.numberPhone", (user1.toLong())),
-                    Filter.equalTo("userAccount1.numberPhone", (user2.toLong()))
+                    Filter.equalTo("dataUser1.numberPhone", (user1.toLong())),
+                    Filter.equalTo("dataUser1.numberPhone", (user2.toLong()))
                 ),
                 Filter.or(
-                    Filter.equalTo("userAccount2.numberPhone", (user1.toLong())),
-                    Filter.equalTo("userAccount2.numberPhone", (user2.toLong()))
+                    Filter.equalTo("dataUser2.numberPhone", (user1.toLong())),
+                    Filter.equalTo("dataUser2.numberPhone", (user2.toLong()))
                 )
             )
         )
@@ -116,7 +116,6 @@ class FireStoreManager {
                             FireStoreManagerState.ChatNotFound
                         } else {
                             println("sii Se encontro el documento del chat")
-
                             FireStoreManagerState.ChatFound
                         }
                         callBack(stated)
@@ -141,16 +140,15 @@ class FireStoreManager {
         docRef.where(
             Filter.and(
                 Filter.or(
-                    Filter.equalTo("userAccount1.numberPhone", (user1.toLong())),
-                    Filter.equalTo("userAccount1.numberPhone", (user2.toLong()))
+                    Filter.equalTo("dataUser1.numberPhone", (user1.toLong())),
+                    Filter.equalTo("dataUser1.numberPhone", (user2.toLong()))
                 ),
                 Filter.or(
-                    Filter.equalTo("userAccount2.numberPhone", (user1.toLong())),
-                    Filter.equalTo("userAccount2.numberPhone", (user2.toLong()))
+                    Filter.equalTo("dataUser2.numberPhone", (user1.toLong())),
+                    Filter.equalTo("dataUser2.numberPhone", (user2.toLong()))
                 )
             )
         )
-
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {
@@ -202,12 +200,12 @@ class FireStoreManager {
             .where(
                 Filter.and(
                     Filter.or(
-                        Filter.equalTo("userAccount1.numberPhone", (user1.toLong())),
-                        Filter.equalTo("userAccount1.numberPhone", (user2.toLong()))
+                        Filter.equalTo("dataUser1.numberPhone", (user1.toLong())),
+                        Filter.equalTo("dataUser1.numberPhone", (user2.toLong()))
                     ),
                     Filter.or(
-                        Filter.equalTo("userAccount2.numberPhone", (user1.toLong())),
-                        Filter.equalTo("userAccount2.numberPhone", (user2.toLong()))
+                        Filter.equalTo("dataUser2.numberPhone", (user1.toLong())),
+                        Filter.equalTo("dataUser2.numberPhone", (user2.toLong()))
                     )
                 )
             )
@@ -222,7 +220,7 @@ class FireStoreManager {
                     if (document.exists()) {
                         try {
                             val chatBoxItem = document.toObject<ChatBoxObject>()
-                            chatBoxItem?.iD = document.id
+                            chatBoxItem?.chatId = document.id
                             chatBoxItem?.let { chatList.add(it) }
                         } catch (ex: Exception) {
                             println("Error to convert document to ChatBoxObject $ex")
@@ -240,8 +238,8 @@ class FireStoreManager {
         val chatsRef = fireStore.collection("chats")
             .where(
                 Filter.or(
-                    Filter.equalTo("userAccount1.numberPhone", (numberPhone.toLong())),
-                    Filter.equalTo("userAccount2.numberPhone", (numberPhone.toLong()))
+                    Filter.equalTo("dataUser1.numberPhone", (numberPhone.toLong())),
+                    Filter.equalTo("dataUser2.numberPhone", (numberPhone.toLong()))
                 )
             )
         val subscription = chatsRef.addSnapshotListener { snapshot, e ->
@@ -255,7 +253,7 @@ class FireStoreManager {
                     if (document.exists()) {
                         try {
                             val chatBoxItem = document.toObject<ChatBoxObject>()
-                            chatBoxItem?.iD = document.id
+                            chatBoxItem?.chatId = document.id
                             chatBoxItem?.let { chatList.add(it) }
                         } catch (ex: Exception) {
                             println("Error to convert document to ChatBoxObject $ex")

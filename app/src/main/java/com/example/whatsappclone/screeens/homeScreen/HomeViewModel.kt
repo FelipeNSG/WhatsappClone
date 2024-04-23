@@ -3,6 +3,7 @@ package com.example.whatsappclone.screeens.homeScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.whatsappclone.data.AuthenticationFirebaseManager
 import com.example.whatsappclone.data.FireStoreManager
 import com.example.whatsappclone.data.moldel.ChatBoxObject
 import com.example.whatsappclone.dataStore.DataStoreManager
@@ -14,23 +15,28 @@ import kotlin.coroutines.resume
 class HomeViewModel(
     val logUser: String,
     private val fireStore: FireStoreManager,
+    private val firebaseAuth: AuthenticationFirebaseManager,
     private val dataStore: DataStoreManager
 ) : ViewModel() {
 
-    /*fun sendDataToDataStore() {
+    fun sendDataToDataStore() {
         viewModelScope.launch {
             dataStore.setUser(logUser)
             dataStore.setIsEnableToPassToHomeScreen(true)
         }
     }
 
-    fun removeSession() {
+    fun removeSessionToDataStore() {
         viewModelScope.launch {
             dataStore.setUser("")
         }
-    }*/
+    }
 
-    suspend fun consulterChat(
+    fun logOutFirebaseAuth() {
+        firebaseAuth.authOut
+    }
+
+    private suspend fun consulterChat(
         logUser: String,
         numberPhoneContact: String,
     ): HomeScreenStated = suspendCancellableCoroutine { continuation ->
@@ -90,7 +96,7 @@ class HomeViewModel(
         numberPhoneContact: String,
     ): HomeScreenStated = suspendCancellableCoroutine { continuation ->
         if (logUser != numberPhoneContact) {
-            println("hellegado aqui")
+            println("he llegado aqui")
             fireStore.fetchIfUserExist(
                 numberPhoneContact,
             ) { statedFireStore ->
@@ -130,12 +136,13 @@ class HomeViewModel(
 class MyViewModelFactory(
     private val numberPhone: String,
     private val fireStore: FireStoreManager,
+    private val firebaseAuth: AuthenticationFirebaseManager,
     private val dataStore: DataStoreManager
 ) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            HomeViewModel(numberPhone, fireStore, dataStore) as T
+            HomeViewModel(numberPhone, fireStore, firebaseAuth, dataStore) as T
 
         } else throw Exception("Error Factory")
     }

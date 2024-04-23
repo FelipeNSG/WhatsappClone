@@ -17,16 +17,16 @@ class AuthenticationFirebaseManager {
 
     private val authentication = FirebaseAuth.getInstance()
     val getUserId = authentication.currentUser?.uid
-    private val authOut = Firebase.auth.signOut()
+    val authOut = Firebase.auth.signOut()
     var storedVerificationId: String = ""
 
-    fun onLoginClicked(context: Context, phoneNumber: String, onCodeSent: (String) -> Unit){
+    fun onLoginClicked(context: Context, phoneNumber: String, onCodeSent: (String) -> Unit, callBackVerification: (Boolean) -> Unit){
 
         authentication.setLanguageCode("en")
         val callback = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                 println("verification completed")
-                signInWithPhoneAuthCredential(context, credential)
+                signInWithPhoneAuthCredential(context, credential, callBackVerification)
             }
 
             override fun onVerificationFailed(p0: FirebaseException) {
@@ -57,7 +57,7 @@ class AuthenticationFirebaseManager {
         }
     }
 
-  private fun signInWithPhoneAuthCredential(context: Context, credential: PhoneAuthCredential) {
+  private fun signInWithPhoneAuthCredential(context: Context, credential: PhoneAuthCredential, callBackVerification: (Boolean) -> Unit) {
         context.getActivity()?.let {
             authentication.signInWithCredential(credential)
                 .addOnCompleteListener(it) { task ->
@@ -65,20 +65,24 @@ class AuthenticationFirebaseManager {
                         // Sign in success, update UI with the signed-in user's information
                         val user = task.result?.user
                         println( "logged in")
+                        callBackVerification(true)
+
                     } else {
                         // Sign in failed, display a message and update the UI
                         if (task.exception is FirebaseAuthInvalidCredentialsException) {
                             // The verification code entered was invalid
                             println( "wrong otp")
+                            callBackVerification(false)
                         }
                         // Update UI
                     }
                 }
         }
+
     }
 
- fun verifyPhoneNumberWithCode(context: Context, verificationId: String, code: String) {
+ fun verifyPhoneNumberWithCode(context: Context, verificationId: String, code: String, callBackVerification: (Boolean) -> Unit) {
         val credential = PhoneAuthProvider.getCredential(verificationId, code)
-        signInWithPhoneAuthCredential(context, credential)
+        signInWithPhoneAuthCredential(context, credential, callBackVerification)
     }
 }

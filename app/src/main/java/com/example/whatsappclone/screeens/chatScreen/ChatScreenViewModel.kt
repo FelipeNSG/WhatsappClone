@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class ChatScreenViewModel(
     private val fireStoreManager: FireStoreManager,
     val numberContact: String,
-    val userNameContact: String,
+    val userAlias: String,
     val userLogPhoneAccount: String,
     private var idDocument: String
 ) : ViewModel() {
@@ -25,15 +25,14 @@ class ChatScreenViewModel(
         var imageUrl = "This is a URL"
         val chatList = getChat().first()
         if (chatList.isNotEmpty()) {
-            imageUrl = if (chatList.first().userAccount1.numberPhone.toString() != userLogPhoneAccount) {
-                chatList.first().userAccount1.userImage
+            imageUrl = if (chatList.first().dataUser1.numberPhone != userLogPhoneAccount.toLong()) {
+                chatList.first().dataUser1.userImage
             } else {
-                chatList.first().userAccount2.userImage
+                chatList.first().dataUser2.userImage
             }
         }
         return imageUrl
     }
-
 
     fun getChat(): Flow<List<ChatBoxObject>> {
         return when (idDocument != "noIdDocument") {
@@ -51,7 +50,7 @@ class ChatScreenViewModel(
         userLogNumberPhone: String,
         userContactNumberPhone: String,
         addUserContactNumberPhone: String,
-        contactName: String,
+        userAlias: String,
         contentMessage: String
     ) {
 
@@ -66,7 +65,7 @@ class ChatScreenViewModel(
                         userLogNumberPhone,
                         userContactNumberPhone,
                         userList,
-                        contactName,
+                        userAlias,
                         contentMessage
                     )
                 }
@@ -78,15 +77,13 @@ class ChatScreenViewModel(
         userLog: String,
         contactNumberPhone: String,
         userList: List<UserAccount>,
-        contactName: String,
+        userContactAlias: String,
         contentMessage: String
     ) {
         val user = userList.find { it.numberPhone.toString() == userLog }
         val newChatBox = ChatBoxObject(
-            userAccount1 = userList[0],
-            userAccount2 = userList[1],
-            userNameChatContact = ContactName(name = contactName, numberPhone = contactNumberPhone),
-            userNameChatUserLog = ContactName(name = userLog, numberPhone = userLog),
+            dataUser2 = ContactName(userAlias = userContactAlias, numberPhone = contactNumberPhone.toLong(), userImage = userList[1].userImage),
+            dataUser1 = ContactName(userAlias = userLog, numberPhone = userLog.toLong(), userImage = userList[0].userImage),
             messages = mutableListOf(
                 Message(
                     user = user?.numberPhone.toString(),
@@ -95,7 +92,6 @@ class ChatScreenViewModel(
             )
         )
         fireStoreManager.createChatBox(newChatBox)
-
     }
 
     fun checkIfAChatAlreadyExists(
@@ -124,7 +120,7 @@ class ChatScreenViewModel(
                             userLogNumberPhone = userLog,
                             userContactNumberPhone = userContactToAdd,
                             addUserContactNumberPhone = userContactToAdd,
-                            contactName = userNameContactToAdd,
+                            userAlias = userNameContactToAdd,
                             contentMessage = contentMessage
                         )
                     }

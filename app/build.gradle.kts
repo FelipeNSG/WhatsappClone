@@ -87,19 +87,18 @@ dependencies {
 
     // optional - ReactiveStreams support for LiveData
     implementation("androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version")
-
+    implementation("androidx.compose.ui:ui:1.7.0-alpha01")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.5")
-    implementation("androidx.datastore:datastore-preferences:1.0.0") //dataStore
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.6")
+    implementation("androidx.datastore:datastore-preferences:1.1.0") //dataStore
     implementation("io.coil-kt:coil-compose:2.6.0")
-    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.core:core-ktx:1.13.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.activity:activity-compose:1.9.0")
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
-    implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")

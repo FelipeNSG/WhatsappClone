@@ -4,16 +4,18 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 data class ContactName(
-    val numberPhone:String = "0",
-    val name: String = "Contact Name"
-)
+    val idUser:String = "Id user",
+    val numberPhone:Long = 0,
+    val userName: String = "User Name",
+    val userAlias: String = "Alias",
+    val userImage: String = "Uri_Image"
+    )
+
 data class ChatBoxObject(
-    var iD: String = "",
-    val userAccount1: UserAccount = UserAccount(),
-    val userAccount2: UserAccount = UserAccount(),
+    var chatId: String = "",
     val messages: List<Message> = emptyList(),
-    val userNameChatUserLog: ContactName = ContactName(),
-    val userNameChatContact: ContactName = ContactName()
+    val dataUser1: ContactName = ContactName(),
+    val dataUser2: ContactName = ContactName()
 )
 
 data class Message(

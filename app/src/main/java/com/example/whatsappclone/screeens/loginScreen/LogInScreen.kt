@@ -115,15 +115,16 @@ fun LogInScreen(
                 val result = loginScreenViewModel.checkNumber(
                     CountryCodePicker.getPhoneNumberWithoutPrefix(),
                     CountryCodePicker.getFullPhoneNumber(),
-                    context
-                ) {
-                    callbackNavControllerNavigationToVerifyScreen.invoke("/$it/${CountryCodePicker.getPhoneNumberWithoutPrefix()}")
-                }
+                    context,
+                    {
+                        callbackNavControllerNavigationToVerifyScreen.invoke("/$it/${CountryCodePicker.getPhoneNumberWithoutPrefix()}")
+                    }
+                ) {}
                 when (result) {
-                    true -> errorMessage.value = true
+                    true -> errorMessage.value = false
 
                     false -> {
-                        errorMessage.value = false
+                        errorMessage.value = true
                     }
                 }
             }

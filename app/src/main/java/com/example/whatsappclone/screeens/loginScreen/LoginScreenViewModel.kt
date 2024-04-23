@@ -11,11 +11,13 @@ class LoginScreenViewModel(
     private val firebaseAuth: AuthenticationFirebaseManager
 ) : ViewModel() {
 
+
     fun checkNumber(
         numberPhone: String,
         numberPhoneWithLada: String,
         context: Context,
-        onCodeSent: (String) -> Unit
+        onCodeSent: (String) -> Unit,
+        callBackVerification: (Boolean) -> Unit
     ): Boolean {
         val validNumber: Boolean = try {
             val validationNumberPhone = numberPhone.toString()
@@ -24,7 +26,7 @@ class LoginScreenViewModel(
             false
         }
         return if (numberPhone.isNotBlank() && validNumber) {
-            onLoginClicked(context, numberPhoneWithLada, onCodeSent)
+            onLoginClicked(context, numberPhoneWithLada, onCodeSent, callBackVerification)
             true
         } else {
             false
@@ -34,9 +36,10 @@ class LoginScreenViewModel(
     private fun onLoginClicked(
         context: Context,
         phoneNumberWithLada: String,
-        onCodeSent: (String) -> Unit
+        onCodeSent: (String) -> Unit,
+        callBackVerification: (Boolean) -> Unit
     ) {
-        firebaseAuth.onLoginClicked(context, phoneNumberWithLada, onCodeSent)
+        firebaseAuth.onLoginClicked(context, phoneNumberWithLada, onCodeSent, callBackVerification)
     }
 }
 

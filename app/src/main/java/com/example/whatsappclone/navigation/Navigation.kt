@@ -30,7 +30,6 @@ import com.example.whatsappclone.screeens.verifyScreen.VerifyScreenViewModel
 @Composable
 fun AppNavigation(
     loginUser: String,
-    allowPermission: Boolean,
 ) {
     val navController = rememberNavController()
     val fireStore = FireStoreManager()
@@ -38,7 +37,9 @@ fun AppNavigation(
     val dataStore = DataStoreSingleton.getInstance(LocalContext.current)
     NavHost(
         navController = navController,
-        startDestination = AppScreen.LoginScreen.route
+        startDestination = if (loginUser.isEmpty()) AppScreen.LoginScreen.route else {
+            AppScreen.HomeScreen.route + "/$loginUser"
+        }
     ) {
         composable(
             AppScreen.LoginScreen.route
@@ -58,13 +59,14 @@ fun AppNavigation(
                 navArgument(name = "storedVerificationId") {
                     type = NavType.StringType
                 },
-                navArgument(name = "numberPhone"){
+                navArgument(name = "numberPhone") {
                     type = NavType.StringType
                 }
             )
         ) {
-            val storedVerificationId = it.arguments?.getString("storedVerificationId") ?: "no_IdFound"
-            val numberPhone = it.arguments?.getString("numberPhone")?: "no_numberPhone"
+            val storedVerificationId =
+                it.arguments?.getString("storedVerificationId") ?: "no_IdFound"
+            val numberPhone = it.arguments?.getString("numberPhone") ?: "no_numberPhone"
             val verifyScreenViewModel: VerifyScreenViewModel =
                 viewModel(
                     factory = MyViewModelFactoryVerifyScreen(
@@ -76,22 +78,31 @@ fun AppNavigation(
                 )
             OTP_VerifyScreen(
                 verifyScreenViewModel,
-            ) {
-                navController.navigate(route = AppScreen.RegisterUserNameScreen.route + it)
+                { sendVariables ->
+                    navController.navigate(route = AppScreen.RegisterUserNameScreen.route + sendVariables)
+                }
+            ) { sendVariables ->
+                navController.navigate(route = AppScreen.HomeScreen.route + sendVariables)
             }
         }
 
         composable(
             AppScreen.RegisterUserNameScreen.route + "/{numberPhone}",
             arguments = listOf(
-                navArgument(name = "numberPhone"){
+                navArgument(name = "numberPhone") {
                     type = NavType.StringType
                 }
             )
         ) {
-            val userNumberPhone = it.arguments?.getString("numberPhone")?: "no_numberPhone"
-            val registerUserNameScreenViewModel: RegisterUserNameScreenViewModel = viewModel(factory = MyViewModelFactoryRegisterUserNameScreenViewModel(userNumberPhone, fireStore, firebaseAuth))
-            RegisterUserNameScreen(registerUserNameScreenViewModel){dataPath ->
+            val userNumberPhone = it.arguments?.getString("numberPhone") ?: "no_numberPhone"
+            val registerUserNameScreenViewModel: RegisterUserNameScreenViewModel = viewModel(
+                factory = MyViewModelFactoryRegisterUserNameScreenViewModel(
+                    userNumberPhone,
+                    fireStore,
+                    firebaseAuth
+                )
+            )
+            RegisterUserNameScreen(registerUserNameScreenViewModel) { dataPath ->
                 navController.navigate(route = AppScreen.HomeScreen.route + dataPath)
             }
         }
@@ -107,10 +118,13 @@ fun AppNavigation(
         ) {
             val userLog: String = it.arguments?.getString("userLog") ?: loginUser
             val homeScreenViewModel: HomeViewModel =
-                viewModel(factory = MyViewModelFactory(userLog, fireStore, dataStore))
+                viewModel(factory = MyViewModelFactory(userLog, fireStore, firebaseAuth, dataStore))
             HomeScreen(
                 homeScreenViewModel,
-            ){ navController.navigate(route = AppScreen.LoginScreen.route) }
+                { variables ->
+                    navController.navigate(route = AppScreen.ChatScreen.route + variables)
+                }
+            ) { navController.navigate(route = AppScreen.LoginScreen.route) }
 
         }
 

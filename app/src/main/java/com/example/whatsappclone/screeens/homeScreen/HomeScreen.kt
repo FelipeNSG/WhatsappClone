@@ -56,18 +56,22 @@ fun HomeScreen(
     homeViewModel
     : HomeViewModel,
     callbackNavController: CallbackNavControllerNavigationToChatScreen,
+    callbackNavControllerNavigationToLoginScreen: CallbackNavControllerNavigationToLoginScreen
 ) {
     LaunchedEffect(Unit) {
-       /* homeViewModel.sendDataToDataStore()*/
+        homeViewModel.sendDataToDataStore()
     }
     val chatList by homeViewModel.getChatList().collectAsState(emptyList())
     Scaffold(
         topBar = {
             AppBarHomeScreen(
                 homeViewModel.logUser,
-                { /*homeViewModel.removeSession()*/ },
-                {}
+                callbackNavControllerNavigationToLoginScreen
             )
+            {
+                homeViewModel.logOutFirebaseAuth()
+                homeViewModel.removeSessionToDataStore()
+            }
         },
     ) { paddingValues ->
         Column(
@@ -173,7 +177,11 @@ fun ChatsHomeScreen(
 
         if (chatList.isNotEmpty()) {
             items(chatList.size) { chatData ->
-                ChatListItem(chatList[chatList.size - (chatData+1)], logUser, callbackNavController)
+                ChatListItem(
+                    chatList[chatList.size - (chatData + 1)],
+                    logUser,
+                    callbackNavController
+                )
             }
         }
     }
@@ -192,18 +200,18 @@ fun ChatListItem(
         mutableStateOf("")
     }
 
-    if (logUser != chatData.userNameChatUserLog.numberPhone) {
-        contactName.value = chatData.userNameChatUserLog.name
-        contactNumber.value = chatData.userNameChatUserLog.numberPhone
+    if (logUser.toLong() != chatData.dataUser1.numberPhone) {
+        contactName.value = chatData.dataUser1.userAlias
+        contactNumber.value = chatData.dataUser1.numberPhone.toString()
     } else {
-        contactName.value = chatData.userNameChatContact.name
-        contactNumber.value = chatData.userNameChatContact.numberPhone
+        contactName.value = chatData.dataUser2.userAlias
+        contactNumber.value = chatData.dataUser2.numberPhone.toString()
     }
 
     Row(
         modifier = Modifier.clickable {
             callbackNavController.invoke(
-                "/${contactNumber.value}/${contactName.value}/${logUser}/${chatData.iD}"
+                "/${contactNumber.value}/${contactName.value}/${logUser}/${chatData.chatId}"
             )
         }
 
@@ -319,13 +327,14 @@ fun OnClickContactAddButton(
                         viewModel.verify(
                             logUser = viewModel.logUser,
                             numberPhoneContact = contactToAdd.value
-                        ){ statedResult ->
-                            when(statedResult){
+                        ) { statedResult ->
+                            when (statedResult) {
                                 HomeViewModel.HomeScreenStated.CorrectNumber -> {
                                     callbackNavController.invoke(
                                         "/${contactToAdd.value}/${name.value}/${viewModel.logUser}/noIdDocument"
                                     )
                                 }
+
                                 else -> {
                                     openDialog.value = false
                                     openDialogCallBack(openDialog.value)

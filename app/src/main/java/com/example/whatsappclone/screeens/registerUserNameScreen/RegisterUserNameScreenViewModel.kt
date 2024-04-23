@@ -17,7 +17,7 @@ class RegisterUserNameScreenViewModel(
         userId?.let {
             val newUser = UserAccount(
                 numberPhone = userNumberPhone.toLong(),
-                userAlias = userAlias,
+                userName = userAlias,
                 userId = userId
             ).also {
                 fireStore.createUser(it, onSuccess)

@@ -27,10 +27,10 @@ fun UserImage(
             .size(60.dp),
         shape = CircleShape,
     ) {
-        if (logUser != chatInformation.userAccount1.numberPhone.toString()) {
-            urlImage.value = chatInformation.userAccount1.userImage
+        if (logUser != chatInformation.dataUser1.numberPhone.toString()) {
+            urlImage.value = chatInformation.dataUser1.userImage
         } else {
-            urlImage.value = chatInformation.userAccount2.userImage
+            urlImage.value = chatInformation.dataUser2.userImage
         }
         SubcomposeAsyncImage(
             model = urlImage.value,

@@ -35,7 +35,4 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun getAllow():Boolean{
         return (getUser.isEmpty() && getAllowPass)  || (getUser.isNotEmpty() && getAllowPass)
     }
-
-
-
 }

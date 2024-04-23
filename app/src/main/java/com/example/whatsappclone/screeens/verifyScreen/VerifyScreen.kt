@@ -40,22 +40,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.whatsappclone.R
+import com.example.whatsappclone.screeens.homeScreen.CallbackNavControllerNavigationToChatScreen
 import com.example.whatsappclone.ui.theme.GreenButtons
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
 
 typealias CallbackNavigationToRegisterUserNameScreen = (String) -> Unit
+
 @Composable
 fun OTP_VerifyScreen(
     verifyScreenViewModel: VerifyScreenViewModel,
-    callbackNavigationToRegisterUserNameScreen: CallbackNavigationToRegisterUserNameScreen
+    callbackNavigationToRegisterUserNameScreen: CallbackNavigationToRegisterUserNameScreen,
+    callbackNavControllerToHomeScreen: CallbackNavControllerNavigationToChatScreen
 ) {
 
     val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
-    val time =  remember { mutableIntStateOf(60) }
+    val time = remember { mutableIntStateOf(60) }
     val maxText = remember { mutableIntStateOf(6) }
-    var text by remember { mutableStateOf(TextFieldValue(""))}
-    val context:Context = LocalContext.current
+    var text by remember { mutableStateOf(TextFieldValue("")) }
+    val context: Context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -118,8 +121,30 @@ fun OTP_VerifyScreen(
                 modifier = Modifier.width(120.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = GreenWhatsapp),
                 onClick = {
-                        verifyScreenViewModel.verifyPhoneNumberWithCode(context, text.text)
-                        callbackNavigationToRegisterUserNameScreen.invoke("/${verifyScreenViewModel.numberPhoneUser}")
+
+                    verifyScreenViewModel.verifyPhoneNumberWithCode(
+                        context,
+                        text.text
+                    ) { verification ->
+                        when(verification){
+                            true -> {
+                                verifyScreenViewModel.consulterUser(verifyScreenViewModel.numberPhoneUser) { verifyUser ->
+                                    when (verifyUser) {
+                                        VerifyScreenViewModel.LoginStatedScreen.UserAlreadyExist -> {
+                                            callbackNavControllerToHomeScreen.invoke("/${verifyScreenViewModel.numberPhoneUser}")
+                                        }
+                                        VerifyScreenViewModel.LoginStatedScreen.UserDoesNotExist -> {
+                                            callbackNavigationToRegisterUserNameScreen.invoke("/${verifyScreenViewModel.numberPhoneUser}")
+                                        }
+                                        else -> {Unit}
+                                    }
+                                }
+                            }
+                            false -> {
+                                Unit
+                            }
+                        }
+                    }
                 }
             ) {
                 Text(
@@ -138,7 +163,7 @@ fun OTP_VerifyScreenPreview(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
-    val time =  remember {
+    val time = remember {
         mutableIntStateOf(60)
     }
     val maxText = remember {

@@ -36,10 +36,10 @@ fun MessageHeader(chatData: ChatBoxObject, logUser: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        if (logUser == chatData.userNameChatUserLog.numberPhone) {
+        if (logUser == chatData.dataUser1.numberPhone.toString()) {
             TextComponent(
                 modifier = Modifier.weight(1f),
-                value = chatData.userNameChatContact.name,
+                value = chatData.dataUser2.userName,
                 fontSize = 18.sp,
                 color = Color.Black,
                 fontWeight = FontWeight.SemiBold
@@ -47,7 +47,7 @@ fun MessageHeader(chatData: ChatBoxObject, logUser: String) {
         } else {
             TextComponent(
                 modifier = Modifier.weight(1f),
-                value = chatData.userNameChatUserLog.name,
+                value = chatData.dataUser1.userAlias,
                 fontSize = 18.sp,
                 color = Color.Black,
                 fontWeight = FontWeight.SemiBold

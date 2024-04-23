@@ -1,6 +1,5 @@
 package com.example.whatsappclone.screeens.chatScreen
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,11 +13,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.SentimentSatisfied
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -48,10 +47,7 @@ import com.example.whatsappclone.ui.theme.GreenButtons
 import com.example.whatsappclone.ui.theme.colorBlueChat
 import com.example.whatsappclone.ui.theme.colorChatGreen
 import com.example.whatsappclone.ui.theme.colorGreyChat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
-val scope = CoroutineScope(Dispatchers.IO)
 
 @Composable
 fun ChatScreen(chatScreenViewModel: ChatScreenViewModel) {
@@ -60,7 +56,7 @@ fun ChatScreen(chatScreenViewModel: ChatScreenViewModel) {
     }
     LaunchedEffect(Unit) { profileImage.value = chatScreenViewModel.getImage() }
     Scaffold(
-        topBar = { TopAppBarChatScreen(chatScreenViewModel.userNameContact, profileImage.value) },
+        topBar = { TopAppBarChatScreen(chatScreenViewModel.userAlias, profileImage.value) },
         bottomBar = {
             TextFieldChatAndAdjacentButtons(chatScreenViewModel)
         }
@@ -87,6 +83,8 @@ fun TextFieldChatAndAdjacentButtons(
     val message = rememberSaveable {
         mutableStateOf("")
     }
+
+
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
@@ -107,10 +105,7 @@ fun TextFieldChatAndAdjacentButtons(
         TextField(
             modifier = Modifier
                 .width(240.dp)
-                .height(53.dp)
-                .clickable {
-
-                },
+                .height(53.dp),
             value = message.value,
             onValueChange = {
                 message.value = it
@@ -180,7 +175,6 @@ fun ShowButtonsCameraAndMicrophone(
             tint = Color.Gray
         )
     }
-
 }
 
 @Composable
@@ -202,7 +196,7 @@ fun ShowSendButton(
                 chatScreenViewModel.checkIfAChatAlreadyExists(
                     chatScreenViewModel.userLogPhoneAccount,
                     chatScreenViewModel.numberContact,
-                    chatScreenViewModel.userNameContact,
+                    chatScreenViewModel.userAlias,
                     contentMessage,
                 ) { statedFetchChat ->
                     when (statedFetchChat) {
@@ -236,7 +230,7 @@ fun ShowSendButton(
         }
     ) {
         Icon(
-            imageVector = Icons.Filled.Send,
+            imageVector = Icons.AutoMirrored.Filled.Send,
             contentDescription = "Button Send",
             modifier = Modifier.size(35.dp),
             tint = GreenButtons
@@ -254,19 +248,18 @@ fun ChatBox(
             reverseLayout = true
         ) {
             items(chatList.first().messages.size) {
-                if (chatScreenViewModel.userLogPhoneAccount == chatList.first().messages[(chatList.first().messages.size) - (it+1)].user) {
-                    ChatMessageTest1(message = chatList.first().messages[(chatList.first().messages.size) - (it+1)].content)
+                if (chatScreenViewModel.userLogPhoneAccount == chatList.first().messages[(chatList.first().messages.size) - (it + 1)].user) {
+                    ChatMessageTest1(message = chatList.first().messages[(chatList.first().messages.size) - (it + 1)].content)
                 } else {
-
-                    if (chatScreenViewModel.userLogPhoneAccount == chatList.first().userAccount1.numberPhone.toString()) {
+                    if (chatScreenViewModel.userLogPhoneAccount == chatList.first().dataUser1.numberPhone.toString()) {
                         ChatTesting2(
-                            message = chatList.first().messages[(chatList.first().messages.size) - (it+1)].content,
-                            chatList.first().userAccount2.userImage
+                            message = chatList.first().messages[(chatList.first().messages.size) - (it + 1)].content,
+                            chatList.first().dataUser2.userImage
                         )
                     } else {
                         ChatTesting2(
-                            message = chatList.first().messages[(chatList.first().messages.size) - (it+1)].content,
-                            chatList.first().userAccount1.userImage
+                            message = chatList.first().messages[(chatList.first().messages.size) - (it + 1)].content,
+                            chatList.first().dataUser1.userImage
                         )
                     }
                 }
@@ -277,14 +270,7 @@ fun ChatBox(
 
 @Composable
 fun ChatMessageTest1(message: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 5.dp),
-        horizontalArrangement = Arrangement.Center
 
-    ) {
-    }
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -321,9 +307,8 @@ fun ChatMessageTest1(message: String) {
             )
         }
     }
-
-
 }
+
 
 @Composable
 fun ChatTesting2(message: String, imageUrl: String) {
@@ -378,5 +363,6 @@ fun ChatTesting2(message: String, imageUrl: String) {
             modifier = Modifier.padding(start = 10.dp)
         )
     }
+
 }
 
