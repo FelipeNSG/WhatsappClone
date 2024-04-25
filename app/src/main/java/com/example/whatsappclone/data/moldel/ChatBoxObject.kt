@@ -4,12 +4,12 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 data class ContactName(
-    val idUser:String = "Id user",
-    val numberPhone:Long = 0,
+    val idUser: String = "Id user",
+    val numberPhone: Long = 0,
     val userName: String = "User Name",
     val userAlias: String = "Alias",
     val userImage: String = "Uri_Image"
-    )
+)
 
 data class ChatBoxObject(
     var chatId: String = "",
@@ -20,6 +20,7 @@ data class ChatBoxObject(
 
 data class Message(
     val user: String = "",
+    val uriImage: String= "",
     val content: String = "",
     val deliveryStatus: MessageDeliveryStatus = MessageDeliveryStatus.DELIVERED,
     val type: MessageType = MessageType.TEXT,
@@ -27,7 +28,7 @@ data class Message(
         .format(DateTimeFormatter.ofPattern("MMMM-dd-yyyy")),
     val timeHour: String = LocalDateTime.now()
         .format(DateTimeFormatter.ofPattern("HH:mm")),
-    val unreadCount: Int?=null
+    val unreadCount: Int? = null
 )
 
 

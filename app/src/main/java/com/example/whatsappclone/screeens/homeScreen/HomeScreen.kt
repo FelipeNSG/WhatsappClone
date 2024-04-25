@@ -12,15 +12,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -39,6 +44,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.example.whatsappclone.components.AppBarHomeScreen
@@ -100,32 +108,68 @@ fun HomeScreen(
 
 @Composable
 fun SearchBarHomeScreen() {
-    TextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp),
-        value = "",
-        onValueChange = {},
-        placeholder = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-            ) {
+    val list = listOf("One", "Two", "Three", "Four", "Five")
+    val textInput = remember { mutableStateOf(TextFieldValue("")) }
+    var isExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            value = textInput.value,
+            onValueChange = { newText ->
+                textInput.value = newText
+            },
+            placeholder = {
+                Text(text = "Search...")
+            },
+            leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Icon",
                     tint = Color.Gray,
-                    modifier = Modifier.size(20.dp)
                 )
-                Text(text = "Search...")
-            }
-        },
-        shape = CircleShape,
-        singleLine = true,
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            },
+            shape = CircleShape,
+            singleLine = true,
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    Unit
+                }
+            )
         )
-    )
+        Column(modifier = Modifier.fillMaxWidth()
+            .padding(start = 20.dp)) {
+            DropdownMenu(
+                expanded = false,
+                onDismissRequest = { false }
+
+            ) {
+                list.forEachIndexed { index, text ->
+                    DropdownMenuItem(
+                        text = { Text(text = text) },
+                        onClick = { },
+                        modifier = Modifier.width(350.dp)
+                    )
+                }
+            }
+        }
+    }
+
 }
 
 @Composable
@@ -214,7 +258,6 @@ fun ChatListItem(
                 "/${contactNumber.value}/${contactName.value}/${logUser}/${chatData.chatId}"
             )
         }
-
     ) {
         UserImage(
             chatData,

@@ -41,7 +41,7 @@ fun AppBarHomeScreen(
             color = Color.Black,
         )
         Text(
-            text = "User: $userLog",
+            text = "Welcome: $userLog",
             fontFamily = fontFamilyMonserrat(500),
             fontSize = 15.sp,
             color = Color.Black,

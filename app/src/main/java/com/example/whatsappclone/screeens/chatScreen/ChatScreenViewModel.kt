@@ -51,7 +51,7 @@ class ChatScreenViewModel(
         userContactNumberPhone: String,
         addUserContactNumberPhone: String,
         userAlias: String,
-        contentMessage: String
+        contentMessage: Message
     ) {
 
         fireStoreManager.fetchUserAccount(
@@ -78,17 +78,14 @@ class ChatScreenViewModel(
         contactNumberPhone: String,
         userList: List<UserAccount>,
         userContactAlias: String,
-        contentMessage: String
+        contentMessage: Message
     ) {
         val user = userList.find { it.numberPhone.toString() == userLog }
         val newChatBox = ChatBoxObject(
             dataUser2 = ContactName(userAlias = userContactAlias, numberPhone = contactNumberPhone.toLong(), userImage = userList[1].userImage),
             dataUser1 = ContactName(userAlias = userLog, numberPhone = userLog.toLong(), userImage = userList[0].userImage),
             messages = mutableListOf(
-                Message(
-                    user = user?.numberPhone.toString(),
-                    content = contentMessage
-                )
+                contentMessage
             )
         )
         fireStoreManager.createChatBox(newChatBox)
@@ -98,7 +95,7 @@ class ChatScreenViewModel(
         userLog: String,
         userContactToAdd: String,
         userNameContactToAdd: String,
-        contentMessage: String,
+        contentMessage: Message,
 
         callBack: (ChatScreenStated) -> Unit
     ) {
@@ -138,14 +135,13 @@ class ChatScreenViewModel(
     fun sendMessage(
         userPhoneAccount: String,
         numberContactToSendMessage: String,
-        message: String
+        message: Message
     ) {
-        if (message.isNotBlank()) {
-            val messageToSend = Message(user = userPhoneAccount, content = message)
+        if (message.content.isNotBlank()) {
             fireStoreManager.sendMessageToChat(
                 userPhoneAccount,
                 numberContactToSendMessage,
-                messageToSend
+                message
             )
         }
     }

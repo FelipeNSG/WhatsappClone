@@ -39,7 +39,7 @@ fun MessageHeader(chatData: ChatBoxObject, logUser: String) {
         if (logUser == chatData.dataUser1.numberPhone.toString()) {
             TextComponent(
                 modifier = Modifier.weight(1f),
-                value = chatData.dataUser2.userName,
+                value = chatData.dataUser2.userAlias,
                 fontSize = 18.sp,
                 color = Color.Black,
                 fontWeight = FontWeight.SemiBold
