@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -34,10 +35,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,14 +47,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import com.example.whatsappclone.components.AppBarHomeScreen
 import com.example.whatsappclone.components.UserDetails
 import com.example.whatsappclone.components.UserImage
 import com.example.whatsappclone.data.moldel.ChatBoxObject
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
+import com.example.whatsappclone.ui.theme.colorGreyChat
 
 typealias CallbackNavControllerNavigationToChatScreen = (String) -> Unit
 typealias CallbackNavControllerNavigationToLoginScreen = () -> Unit
@@ -69,7 +73,7 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         homeViewModel.sendDataToDataStore()
     }
-    val chatList by homeViewModel.getChatList().collectAsState(emptyList())
+    val chatList by homeViewModel.getChatList().collectAsStateWithLifecycle(emptyList())
     Scaffold(
         topBar = {
             AppBarHomeScreen(
@@ -106,14 +110,16 @@ fun HomeScreen(
     }
 }
 
+
 @Composable
+@Preview
 fun SearchBarHomeScreen() {
-    val list = listOf("One", "Two", "Three", "Four", "Five")
-    val textInput = remember { mutableStateOf(TextFieldValue("")) }
-    var isExpanded by remember {
+    val list = listOf("111", "222", "3332", "5555", "44444", "777")
+    val textInput = remember { mutableStateOf("") }
+    val searchText = textInput.value
+    var isExpanded by rememberSaveable {
         mutableStateOf(false)
     }
-
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -129,18 +135,22 @@ fun SearchBarHomeScreen() {
             placeholder = {
                 Text(text = "Search...")
             },
-            leadingIcon = {
+            trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Icon",
                     tint = Color.Gray,
+                    modifier = Modifier.clickable { isExpanded = !isExpanded }
                 )
             },
             shape = CircleShape,
             singleLine = true,
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedContainerColor = colorGreyChat,
+                unfocusedContainerColor = colorGreyChat
+
             ),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
@@ -152,25 +162,44 @@ fun SearchBarHomeScreen() {
                 }
             )
         )
-        Column(modifier = Modifier.fillMaxWidth()
-            .padding(start = 20.dp)) {
-            DropdownMenu(
-                expanded = false,
-                onDismissRequest = { false }
 
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp)
+        ) {
+            DropdownMenu(
+                expanded = isExpanded,
+                onDismissRequest = {  },
+                properties = PopupProperties(focusable = false),
+                modifier = Modifier.background(Color.White)
             ) {
-                list.forEachIndexed { index, text ->
-                    DropdownMenuItem(
-                        text = { Text(text = text) },
-                        onClick = { },
-                        modifier = Modifier.width(350.dp)
-                    )
+                Box(
+                    modifier = Modifier.width(345.dp)
+                        .height(145.dp)
+                ) {
+                    LazyColumn {
+                        items(items = list.filter {
+                            it.contains(searchText)
+
+                        }, key = {
+                            it
+                        }) { item ->
+                            DropdownMenuItem(
+                                text = { Text(text = item) },
+                                onClick = {
+                                    textInput.value = item
+                                    isExpanded = false
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
     }
-
 }
+
 
 @Composable
 fun ProfileStatus() {
@@ -212,9 +241,8 @@ fun ChatsHomeScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        item {
-            SearchBarHomeScreen()
-        }
+
+        item { SearchBarHomeScreen() }
         item {
             ProfileStatus()
         }
@@ -230,6 +258,7 @@ fun ChatsHomeScreen(
         }
     }
 }
+
 
 @Composable
 fun ChatListItem(
@@ -385,7 +414,6 @@ fun OnClickContactAddButton(
                                 }
                             }
                         }
-
                     },
 
                     ) {
