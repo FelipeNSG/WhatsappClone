@@ -138,7 +138,6 @@ fun LogInScreen(
 }
 
 @Composable
-@Preview
 fun LogInScreenPreview(
 
 ) {

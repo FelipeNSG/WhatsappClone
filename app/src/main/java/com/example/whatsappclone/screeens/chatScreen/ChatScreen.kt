@@ -109,7 +109,6 @@ fun TextFieldChatAndAdjacentButtons(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
-
         ) {
 
         IconButton(
@@ -201,7 +200,6 @@ fun TextFieldChatAndAdjacentButtons(
 
 @Composable
 fun ShowButtonsCameraAndMicrophone(
-
 ) {
     IconButton(
         modifier = Modifier.size(40.dp),
@@ -360,12 +358,12 @@ fun ChatBox(
                     if (chatScreenViewModel.userLogPhoneAccount == chatList.first().dataUser1.numberPhone.toString()) {
                         ChatTesting2(
                             message = chatList.first().messages[(chatList.first().messages.size) - (it + 1)],
-                            chatList.first().dataUser2.userImage
+                            chatList.first().dataUser1.userImage
                         )
                     } else {
                         ChatTesting2(
                             message = chatList.first().messages[(chatList.first().messages.size) - (it + 1)],
-                            chatList.first().dataUser1.userImage
+                            chatList.first().dataUser2.userImage
                         )
                     }
                 }

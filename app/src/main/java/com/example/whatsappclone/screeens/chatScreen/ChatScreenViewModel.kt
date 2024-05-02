@@ -26,9 +26,9 @@ class ChatScreenViewModel(
         val chatList = getChat().first()
         if (chatList.isNotEmpty()) {
             imageUrl = if (chatList.first().dataUser1.numberPhone != userLogPhoneAccount.toLong()) {
-                chatList.first().dataUser1.userImage
-            } else {
                 chatList.first().dataUser2.userImage
+            } else {
+                chatList.first().dataUser1.userImage
             }
         }
         return imageUrl

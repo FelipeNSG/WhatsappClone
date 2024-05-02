@@ -9,6 +9,6 @@ data class UserAccount(
 )
 
 fun imageRandom(): String {
-    val number = (220..250).random()
+    val number = (230..250).random()
     return "https://picsum.photos/id/$number/200/300"
 }

@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
@@ -96,7 +97,12 @@ fun HomeScreen(
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-                ChatsHomeScreen(chatList, homeViewModel.logUser, callbackNavController)
+                ChatsHomeScreen(
+                    homeViewModel,
+                    chatList,
+                    homeViewModel.logUser,
+                    callbackNavController
+                )
             }
         }
         Box(
@@ -110,16 +116,15 @@ fun HomeScreen(
     }
 }
 
-
 @Composable
-@Preview
-fun SearchBarHomeScreen() {
-    val list = listOf("111", "222", "3332", "5555", "44444", "777")
-    val textInput = remember { mutableStateOf("") }
-    val searchText = textInput.value
-    var isExpanded by rememberSaveable {
-        mutableStateOf(false)
-    }
+fun SearchBarHomeScreen(
+    viewModel: HomeViewModel,
+    chatList: List<ChatBoxObject>,
+    callbackNavController: CallbackNavControllerNavigationToChatScreen,
+    callbackText: (TextFieldValue) -> Unit
+) {
+    val textInput = remember { mutableStateOf(TextFieldValue("")) }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -131,6 +136,7 @@ fun SearchBarHomeScreen() {
             value = textInput.value,
             onValueChange = { newText ->
                 textInput.value = newText
+                callbackText(textInput.value)
             },
             placeholder = {
                 Text(text = "Search...")
@@ -140,7 +146,36 @@ fun SearchBarHomeScreen() {
                     imageVector = Icons.Default.Search,
                     contentDescription = "Icon",
                     tint = Color.Gray,
-                    modifier = Modifier.clickable { isExpanded = !isExpanded }
+                    modifier = Modifier.clickable {
+                        if (textInput.value.text.length >= 9) {
+                            viewModel.verify(
+                                logUser = viewModel.logUser,
+                                numberPhoneContact = textInput.value.text
+                            ) { statedResult ->
+                                when (statedResult) {
+                                    HomeViewModel.HomeScreenStated.CorrectNumber -> {
+                                        callbackNavController.invoke(
+                                            "/${textInput.value.text}/${viewModel.logUser}/${viewModel.logUser}/noIdDocument"
+                                        )
+                                    }
+
+                                    HomeViewModel.HomeScreenStated.TheChatAlreadyExist -> {
+                                        val chatItem = chatList.filter {
+                                            ((it.dataUser1.numberPhone.toString() == viewModel.logUser ||
+                                                    it.dataUser2.numberPhone.toString() == viewModel.logUser)
+                                                    &&
+                                                    (it.dataUser1.numberPhone.toString() == textInput.value.text ||
+                                                            it.dataUser2.numberPhone.toString() == textInput.value.text))
+                                        }
+                                    }
+
+                                    else -> {
+                                        textInput.value = TextFieldValue("")
+                                    }
+                                }
+                            }
+                        }
+                    },
                 )
             },
             shape = CircleShape,
@@ -153,7 +188,7 @@ fun SearchBarHomeScreen() {
 
             ),
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
+                keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(
@@ -162,44 +197,8 @@ fun SearchBarHomeScreen() {
                 }
             )
         )
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp)
-        ) {
-            DropdownMenu(
-                expanded = isExpanded,
-                onDismissRequest = {  },
-                properties = PopupProperties(focusable = false),
-                modifier = Modifier.background(Color.White)
-            ) {
-                Box(
-                    modifier = Modifier.width(345.dp)
-                        .height(145.dp)
-                ) {
-                    LazyColumn {
-                        items(items = list.filter {
-                            it.contains(searchText)
-
-                        }, key = {
-                            it
-                        }) { item ->
-                            DropdownMenuItem(
-                                text = { Text(text = item) },
-                                onClick = {
-                                    textInput.value = item
-                                    isExpanded = false
-                                },
-                            )
-                        }
-                    }
-                }
-            }
-        }
     }
 }
-
 
 @Composable
 fun ProfileStatus() {
@@ -227,13 +226,17 @@ fun ProfileStatus() {
     }
 }
 
-
 @Composable
 fun ChatsHomeScreen(
+    viewModel: HomeViewModel,
     chatList: List<ChatBoxObject>,
     logUser: String,
     callbackNavController: CallbackNavControllerNavigationToChatScreen
 ) {
+    var searchContactInChatList = chatList
+    var searchedText = remember {
+        mutableStateOf(TextFieldValue(""))
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -241,24 +244,50 @@ fun ChatsHomeScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.Start
     ) {
-
-        item { SearchBarHomeScreen() }
+        item {
+            SearchBarHomeScreen(
+                viewModel = viewModel,
+                chatList,
+                callbackNavController
+            ) { searchedText.value = it }
+        }
         item {
             ProfileStatus()
         }
-
-        if (chatList.isNotEmpty()) {
-            items(chatList.size) { chatData ->
-                ChatListItem(
-                    chatList[chatList.size - (chatData + 1)],
-                    logUser,
-                    callbackNavController
-                )
+        if (searchContactInChatList.isNotEmpty()) {
+            items(searchContactInChatList.size) { chatData ->
+                if ((searchContactInChatList[chatData].dataUser1.numberPhone.toString() != logUser) &&
+                    (searchContactInChatList[chatData].dataUser1.numberPhone.toString()
+                        .startsWith(
+                            searchedText.value.text,
+                            ignoreCase = true
+                        ) || searchContactInChatList[chatData].dataUser1
+                        .userAlias.startsWith(searchedText.value.text, ignoreCase = true))
+                ) {
+                    ChatListItem(
+                        searchContactInChatList[chatList.size - (chatData + 1)],
+                        logUser,
+                        callbackNavController
+                    )
+                } else {
+                    if (searchContactInChatList[chatData].dataUser2.numberPhone.toString()
+                            .startsWith(
+                                searchedText.value.text,
+                                ignoreCase = true
+                            ) || searchContactInChatList[chatData].dataUser2
+                            .userAlias.startsWith(searchedText.value.text, ignoreCase = true)
+                    ) {
+                        ChatListItem(
+                            searchContactInChatList[chatList.size - (chatData + 1)],
+                            logUser,
+                            callbackNavController
+                        )
+                    }
+                }
             }
         }
     }
 }
-
 
 @Composable
 fun ChatListItem(
