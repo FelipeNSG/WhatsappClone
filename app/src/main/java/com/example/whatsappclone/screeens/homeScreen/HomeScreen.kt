@@ -12,10 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,9 +22,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -38,7 +35,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,15 +44,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import com.example.whatsappclone.components.AppBarHomeScreen
 import com.example.whatsappclone.components.UserDetails
 import com.example.whatsappclone.components.UserImage
 import com.example.whatsappclone.data.moldel.ChatBoxObject
+import com.example.whatsappclone.ui.theme.GreenButtons
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
 import com.example.whatsappclone.ui.theme.colorGreyChat
 
@@ -381,6 +376,8 @@ fun OnClickContactAddButton(
     if (openDialog.value) {
 
         AlertDialog(
+            containerColor = Color.White,
+            textContentColor = Color.White,
             onDismissRequest = {
                 openDialog.value = false
                 openDialogCallBack(openDialog.value)
@@ -400,13 +397,19 @@ fun OnClickContactAddButton(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     TextField(
+
                         value = contactToAdd.value,
                         onValueChange = {
                             contactToAdd.value = it
                         },
                         placeholder = {
                             Text(text = "Enter the number phone")
-                        }
+                        },
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = GreenButtons,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        )
                     )
                     TextField(
                         value = name.value,
@@ -415,7 +418,12 @@ fun OnClickContactAddButton(
                         },
                         placeholder = {
                             Text(text = "Name")
-                        }
+                        },
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = GreenButtons,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        )
                     )
                 }
             },
@@ -444,8 +452,8 @@ fun OnClickContactAddButton(
                             }
                         }
                     },
-
-                    ) {
+                    colors = ButtonDefaults.buttonColors(GreenWhatsapp)
+                ) {
                     Text(text = "APPLY")
                 }
             },
@@ -456,6 +464,7 @@ fun OnClickContactAddButton(
                         openDialogCallBack(openDialog.value)
                         textOfNote = ""
                     },
+                    colors = ButtonDefaults.buttonColors(GreenWhatsapp)
                 ) {
                     Text(text = "CANCEL")
                 }

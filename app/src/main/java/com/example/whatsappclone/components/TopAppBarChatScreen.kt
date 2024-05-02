@@ -35,7 +35,7 @@ import com.example.whatsappclone.ui.theme.fontFamilyMonserrat
 
 
 @Composable
-fun TopAppBarChatScreen(contactName: String, imageUrl:String) {
+fun TopAppBarChatScreen(contactName: String, imageUrl:String, callBackNavigationBack: () -> Unit) {
     val profileImageUrl = remember {
         mutableStateOf("")
     }
@@ -48,7 +48,7 @@ fun TopAppBarChatScreen(contactName: String, imageUrl:String) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(
-            onClick = { }
+            onClick = { callBackNavigationBack.invoke()}
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,

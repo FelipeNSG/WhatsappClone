@@ -89,7 +89,9 @@ fun LogInScreen(
                 modifier = Modifier
                     .width(300.dp),
                 text = phoneNumber.value.take(maxNumbers),
-                onValueChange = { phoneNumber.value = it },
+                onValueChange = {newText ->
+                    phoneNumber.value = newText
+                },
                 placeholder = { Text(text = "Phone Number") },
                 shape = MaterialTheme.shapes.extraLarge,
                 colors = TextFieldDefaults.colors(
@@ -110,8 +112,7 @@ fun LogInScreen(
 
         Button(
             modifier = Modifier.width(100.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = GreenWhatsapp),
-            onClick = {
+            colors = ButtonDefaults.buttonColors(containerColor = GreenWhatsapp), onClick = {
                 val result = loginScreenViewModel.checkNumber(
                     CountryCodePicker.getPhoneNumberWithoutPrefix(),
                     CountryCodePicker.getFullPhoneNumber(),
@@ -138,6 +139,7 @@ fun LogInScreen(
 }
 
 @Composable
+@Preview
 fun LogInScreenPreview(
 
 ) {

@@ -1,5 +1,7 @@
 package com.example.whatsappclone.screeens.chatScreen
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.content.MediaType
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,6 +33,7 @@ import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.SentimentSatisfied
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -44,10 +48,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import com.example.whatsappclone.components.TopAppBarChatScreen
 import com.example.whatsappclone.data.moldel.Message
@@ -56,16 +58,26 @@ import com.example.whatsappclone.ui.theme.GreenButtons
 import com.example.whatsappclone.ui.theme.colorBlueChat
 import com.example.whatsappclone.ui.theme.colorChatGreen
 import com.example.whatsappclone.ui.theme.colorGreyChat
+import com.example.whatsappclone.utils.Constants.ALL_IMAGES
 
 
 @Composable
-fun ChatScreen(chatScreenViewModel: ChatScreenViewModel) {
+fun ChatScreen(
+    chatScreenViewModel: ChatScreenViewModel,
+    callBackNavigationBack: () -> Unit
+) {
     val profileImage = remember {
         mutableStateOf("")
     }
     LaunchedEffect(Unit) { profileImage.value = chatScreenViewModel.getImage() }
     Scaffold(
-        topBar = { TopAppBarChatScreen(chatScreenViewModel.userAlias, profileImage.value) },
+        topBar = {
+            TopAppBarChatScreen(
+                chatScreenViewModel.userAlias,
+                profileImage.value,
+                callBackNavigationBack
+            )
+        },
         bottomBar = {
             TextFieldChatAndAdjacentButtons(chatScreenViewModel)
         }
@@ -82,11 +94,21 @@ fun ChatScreen(chatScreenViewModel: ChatScreenViewModel) {
     }
 }
 
+
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
+
 fun TextFieldChatAndAdjacentButtons(
     chatScreenViewModel: ChatScreenViewModel,
 ) {
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { imageUri ->
+        imageUri?.let {
+            chatScreenViewModel.addImageToStorage(imageUri)
+        }
+    }
     val textState = rememberTextFieldState()
 
     val showButtonSend = remember {
@@ -109,11 +131,13 @@ fun TextFieldChatAndAdjacentButtons(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
-        ) {
+    ) {
 
         IconButton(
             modifier = Modifier.size(45.dp),
             onClick = {
+                //Acceder a Galeria
+                galleryLauncher.launch(ALL_IMAGES)
             }
         ) {
             Icon(
@@ -134,7 +158,7 @@ fun TextFieldChatAndAdjacentButtons(
                     uriMessage.value = content.platformTransferableContent?.linkUri.toString()
                     gifOrImageMessage.value = Message(
                         uriImage = uriMessage.value,
-                        type = MessageType.IMAGE,
+                        type = MessageType.STICKER_OR_GIFT,
                         user = chatScreenViewModel.userLogPhoneAccount,
                         content = "Image"
                     )
@@ -405,19 +429,31 @@ fun ChatMessageTest1(message: Message) {
                 containerColor = colorChatGreen
             ),
         ) {
-            if (message.type == MessageType.TEXT) {
-                Text(
-                    text = message.content,
-                    modifier = Modifier.padding(10.dp)
-                )
-            } else {
-                AsyncImage(
-                    model = message.uriImage,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(200.dp),
-                )
+            when (message.type) {
+                MessageType.TEXT -> {
+                    Text(
+                        text = message.content,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+                MessageType.STICKER_OR_GIFT -> {
+                    SubcomposeAsyncImage(
+                        model = message.uriImage,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .heightIn(max = 200.dp)
+                            .width(165.dp),
+                    )
+                }
+                else -> {
+                    SubcomposeAsyncImage(
+                        model = message.uriImage,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .heightIn(max = 200.dp)
+                            .width(170.dp),
+                    )
+                }
             }
         }
     }
@@ -442,18 +478,31 @@ fun ChatTesting2(message: Message, imageUrl: String) {
                 containerColor = colorGreyChat
             ),
         ) {
-            if (message.type == MessageType.TEXT) {
-                Text(
-                    text = message.content,
-                    modifier = Modifier.padding(10.dp)
-                )
-            } else {
-                AsyncImage(
-                    model = message.uriImage,
-                    contentDescription = null,
-                    modifier = Modifier.width(180.dp),
-                    contentScale = ContentScale.FillHeight
-                )
+            when (message.type) {
+                MessageType.TEXT -> {
+                    Text(
+                        text = message.content,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+                MessageType.STICKER_OR_GIFT -> {
+                    SubcomposeAsyncImage(
+                        model = message.uriImage,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .heightIn(max = 200.dp)
+                            .width(165.dp),
+                    )
+                }
+                else -> {
+                    SubcomposeAsyncImage(
+                        model = message.uriImage,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .heightIn(max = 200.dp)
+                            .width(170.dp),
+                    )
+                }
             }
         }
     }
@@ -475,7 +524,17 @@ fun ChatTesting2(message: Message, imageUrl: String) {
                 modifier = Modifier
                     .clip(CircleShape)
                     .fillMaxSize(),
-                contentScale = ContentScale.Crop,
+                loading = {
+                    Column(
+                        modifier = Modifier
+                            .width(30.dp)
+                            .height(30.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
             )
         }
         Text(

@@ -43,6 +43,7 @@ enum class MessageType {
     TEXT,
     AUDIO,
     VIDEO,
+    STICKER_OR_GIFT,
     IMAGE
 }
 

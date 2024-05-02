@@ -1,12 +1,19 @@
 package com.example.whatsappclone.screeens.chatScreen
 
+import android.net.Uri
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.whatsappclone.data.FireStoreManager
+import com.example.whatsappclone.data.FirebaseStorageManager
+import com.example.whatsappclone.data.Response
 import com.example.whatsappclone.data.moldel.ChatBoxObject
 import com.example.whatsappclone.data.moldel.ContactName
 import com.example.whatsappclone.data.moldel.Message
+import com.example.whatsappclone.data.moldel.MessageType
 import com.example.whatsappclone.data.moldel.UserAccount
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -15,11 +22,37 @@ import kotlinx.coroutines.launch
 
 class ChatScreenViewModel(
     private val fireStoreManager: FireStoreManager,
+    private val storage: FirebaseStorageManager,
     val numberContact: String,
     val userAlias: String,
     val userLogPhoneAccount: String,
     private var idDocument: String
 ) : ViewModel() {
+
+    var addImageToStorageResponse by mutableStateOf<Response<Uri>>(Response.Success(null))
+    fun addImageToStorage(imageUri: Uri) = viewModelScope.launch {
+        addImageToStorageResponse = Response.Loading
+        addImageToStorageResponse = storage.addImageToFirebaseStorage(imageUri).also {
+            when(it){
+                is Response.Failure -> {
+                    println("Error al enviar una imagen a storage")
+                }
+                Response.Loading -> {Unit}
+                is Response.Success -> {
+                    sendMessage(
+                        userPhoneAccount = userLogPhoneAccount,
+                        numberContactToSendMessage = numberContact,
+                        message = Message(
+                            content = "Esto es una imagen de la galerria",
+                            uriImage = it.data.toString(),
+                            type = MessageType.IMAGE
+                        )
+                    )
+                }
+            }
+
+        }
+    }
 
     suspend fun getImage(): String {
         var imageUrl = "This is a URL"
@@ -156,6 +189,7 @@ class ChatScreenViewModel(
 
 class MyViewModelFactoryChatScreen(
     private val fireStore: FireStoreManager,
+    private val storage: FirebaseStorageManager,
     private val numberContactToAdd: String,
     private val userNameContactToAdd: String,
     private val userPhoneAccount: String,
@@ -165,6 +199,7 @@ class MyViewModelFactoryChatScreen(
         return if (modelClass.isAssignableFrom(ChatScreenViewModel::class.java)) {
             ChatScreenViewModel(
                 fireStore,
+                storage,
                 numberContactToAdd,
                 userNameContactToAdd,
                 userPhoneAccount,

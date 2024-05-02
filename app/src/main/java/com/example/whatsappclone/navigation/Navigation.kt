@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.whatsappclone.data.AuthenticationFirebaseManager
 import com.example.whatsappclone.data.FireStoreManager
+import com.example.whatsappclone.data.FirebaseStorageManager
 import com.example.whatsappclone.dataStore.DataStoreSingleton
 import com.example.whatsappclone.screeens.chatScreen.ChatScreen
 import com.example.whatsappclone.screeens.chatScreen.ChatScreenViewModel
@@ -31,7 +32,9 @@ import com.example.whatsappclone.screeens.verifyScreen.VerifyScreenViewModel
 fun AppNavigation(
     loginUser: String,
 ) {
+
     val navController = rememberNavController()
+    val storage = FirebaseStorageManager()
     val fireStore = FireStoreManager()
     val firebaseAuth = AuthenticationFirebaseManager()
     val dataStore = DataStoreSingleton.getInstance(LocalContext.current)
@@ -114,7 +117,6 @@ fun AppNavigation(
                     type = NavType.StringType
                 }
             )
-
         ) {
             val userLog: String = it.arguments?.getString("userLog") ?: loginUser
             val homeScreenViewModel: HomeViewModel =
@@ -125,7 +127,6 @@ fun AppNavigation(
                     navController.navigate(route = AppScreen.ChatScreen.route + variables)
                 }
             ) { navController.navigate(route = AppScreen.LoginScreen.route) }
-
         }
 
         composable(
@@ -154,6 +155,7 @@ fun AppNavigation(
                 viewModel(
                     factory = MyViewModelFactoryChatScreen(
                         fireStore,
+                        storage,
                         contactToAdd,
                         userNameContactToAdd,
                         userPhoneAccount,
@@ -162,7 +164,7 @@ fun AppNavigation(
                 )
             ChatScreen(
                 chatScreenViewModel,
-            )
+            ){navController.popBackStack()}
         }
     }
 }
