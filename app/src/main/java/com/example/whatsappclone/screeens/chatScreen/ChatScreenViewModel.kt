@@ -29,7 +29,7 @@ class ChatScreenViewModel(
     private var idDocument: String
 ) : ViewModel() {
 
-    var addImageToStorageResponse by mutableStateOf<Response<Uri>>(Response.Success(null))
+    private var addImageToStorageResponse by mutableStateOf<Response<Uri>>(Response.Success(null))
     fun addImageToStorage(imageUri: Uri) = viewModelScope.launch {
         addImageToStorageResponse = Response.Loading
         addImageToStorageResponse = storage.addImageToFirebaseStorage(imageUri).also {
@@ -45,7 +45,8 @@ class ChatScreenViewModel(
                         message = Message(
                             content = "Esto es una imagen de la galerria",
                             uriImage = it.data.toString(),
-                            type = MessageType.IMAGE
+                            type = MessageType.IMAGE,
+                            user = userLogPhoneAccount
                         )
                     )
                 }
