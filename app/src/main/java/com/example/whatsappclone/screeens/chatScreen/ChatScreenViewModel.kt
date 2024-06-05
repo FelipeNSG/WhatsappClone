@@ -43,7 +43,7 @@ class ChatScreenViewModel(
                         userPhoneAccount = userLogPhoneAccount,
                         numberContactToSendMessage = numberContact,
                         message = Message(
-                            content = "Esto es una imagen de la galerria",
+                            content = "Image",
                             uriImage = it.data.toString(),
                             type = MessageType.IMAGE,
                             user = userLogPhoneAccount
@@ -60,9 +60,9 @@ class ChatScreenViewModel(
         val chatList = getChat().first()
         if (chatList.isNotEmpty()) {
             imageUrl = if (chatList.first().dataUser1.numberPhone != userLogPhoneAccount.toLong()) {
-                chatList.first().dataUser2.userImage
-            } else {
                 chatList.first().dataUser1.userImage
+            } else {
+                chatList.first().dataUser2.userImage
             }
         }
         return imageUrl

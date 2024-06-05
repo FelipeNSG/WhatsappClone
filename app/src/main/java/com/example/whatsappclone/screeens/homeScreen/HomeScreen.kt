@@ -94,7 +94,7 @@ fun HomeScreen(
             ) {
                 ChatsHomeScreen(
                     homeViewModel,
-                    chatList,
+                    chatList.sortedBy { it.messages.last().timeStamp },
                     homeViewModel.logUser,
                     callbackNavController
                 )

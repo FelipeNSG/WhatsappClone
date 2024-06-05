@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -55,7 +56,6 @@ import com.example.whatsappclone.components.TopAppBarChatScreen
 import com.example.whatsappclone.data.moldel.Message
 import com.example.whatsappclone.data.moldel.MessageType
 import com.example.whatsappclone.ui.theme.GreenButtons
-import com.example.whatsappclone.ui.theme.colorBlueChat
 import com.example.whatsappclone.ui.theme.colorChatGreen
 import com.example.whatsappclone.ui.theme.colorGreyChat
 import com.example.whatsappclone.utils.Constants.ALL_IMAGES
@@ -406,7 +406,7 @@ fun ChatMessageTest1(message: Message) {
         horizontalArrangement = Arrangement.End,
     ) {
         Text(
-            text = "9:10",
+            text = message.timeHour,
             color = Color.Gray,
             fontSize = 10.sp,
             modifier = Modifier.padding(end = 10.dp)
@@ -415,7 +415,7 @@ fun ChatMessageTest1(message: Message) {
             imageVector = Icons.Filled.DoneAll,
             contentDescription = "check",
             modifier = Modifier.size(15.dp),
-            tint = colorBlueChat
+            tint = Color.LightGray
         )
     }
     Row(
@@ -424,38 +424,58 @@ fun ChatMessageTest1(message: Message) {
             .padding(5.dp),
         horizontalArrangement = Arrangement.End,
     ) {
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = colorChatGreen
-            ),
-        ) {
+
             when (message.type) {
+
                 MessageType.TEXT -> {
-                    Text(
-                        text = message.content,
-                        modifier = Modifier.padding(10.dp)
-                    )
+
+                    Card(
+                        modifier = Modifier.widthIn(max = 270.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = colorChatGreen
+                        ),
+                    ) {
+                        Text(
+                            text = message.content,
+                            modifier = Modifier.padding(10.dp)
+                        )
+                    }
                 }
                 MessageType.STICKER_OR_GIFT -> {
-                    SubcomposeAsyncImage(
-                        model = message.uriImage,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .heightIn(max = 200.dp)
-                            .width(165.dp),
-                    )
+
+                    Card(
+
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Transparent
+                        ),
+                    ){
+                        SubcomposeAsyncImage(
+                            model = message.uriImage,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .heightIn(max = 200.dp)
+                                .width(165.dp),
+                        )
+                    }
                 }
                 else -> {
-                    SubcomposeAsyncImage(
-                        model = message.uriImage,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .heightIn(max = 200.dp)
-                            .width(170.dp),
-                    )
+
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Transparent
+                        ),
+                    ){
+                        SubcomposeAsyncImage(
+                            model = message.uriImage,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .heightIn(max = 200.dp)
+                                .width(170.dp),
+                        )
+                    }
                 }
             }
-        }
+
     }
 }
 
@@ -467,44 +487,71 @@ fun ChatTesting2(message: Message, imageUrl: String) {
             .padding(5.dp),
         horizontalArrangement = Arrangement.Start,
     ) {
-        Card(
-            shape = RoundedCornerShape(
-                topStart = 12.dp,
-                topEnd = 12.dp,
-                bottomStart = 0.dp,
-                bottomEnd = 12.dp
-            ),
-            colors = CardDefaults.cardColors(
-                containerColor = colorGreyChat
-            ),
-        ) {
+
             when (message.type) {
                 MessageType.TEXT -> {
-                    Text(
-                        text = message.content,
-                        modifier = Modifier.padding(10.dp)
-                    )
+                    Card(
+                        modifier = Modifier.widthIn(max = 270.dp),
+                        shape = RoundedCornerShape(
+                            topStart = 12.dp,
+                            topEnd = 12.dp,
+                            bottomStart = 0.dp,
+                            bottomEnd = 12.dp
+                        ),
+                        colors = CardDefaults.cardColors(
+                            containerColor = colorGreyChat
+                        ),
+                    ){
+                        Text(
+                            text = message.content,
+                            modifier = Modifier.padding(10.dp)
+                        )
+                    }
                 }
                 MessageType.STICKER_OR_GIFT -> {
-                    SubcomposeAsyncImage(
-                        model = message.uriImage,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .heightIn(max = 200.dp)
-                            .width(165.dp),
-                    )
+                    Card(
+                        shape = RoundedCornerShape(
+                            topStart = 12.dp,
+                            topEnd = 12.dp,
+                            bottomStart = 0.dp,
+                            bottomEnd = 12.dp
+                        ),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Transparent
+                        ),
+                    ){
+                        SubcomposeAsyncImage(
+                            model = message.uriImage,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .heightIn(max = 200.dp)
+                                .width(165.dp),
+                        )
+                    }
                 }
                 else -> {
-                    SubcomposeAsyncImage(
-                        model = message.uriImage,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .heightIn(max = 200.dp)
-                            .width(170.dp),
-                    )
+                    Card(
+                        shape = RoundedCornerShape(
+                            topStart = 12.dp,
+                            topEnd = 12.dp,
+                            bottomStart = 0.dp,
+                            bottomEnd = 12.dp
+                        ),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Transparent
+                        ),
+                    ){
+                        SubcomposeAsyncImage(
+                            model = message.uriImage,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .heightIn(max = 200.dp)
+                                .width(170.dp),
+                        )
+                    }
                 }
             }
-        }
+
     }
 
     Row(
@@ -538,7 +585,7 @@ fun ChatTesting2(message: Message, imageUrl: String) {
             )
         }
         Text(
-            text = "12:10",
+            text = message.timeHour,
             color = Color.Gray,
             fontSize = 10.sp,
             modifier = Modifier.padding(start = 10.dp)

@@ -40,13 +40,13 @@ fun AppBarHomeScreen(
             fontSize = 15.sp,
             color = Color.Black,
         )
-        Text(
+      /*  Text(
             text = "Welcome: $userLog",
             fontFamily = fontFamilyMonserrat(500),
             fontSize = 15.sp,
             color = Color.Black,
             modifier = Modifier.padding(10.dp)
-        )
+        )*/
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End

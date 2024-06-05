@@ -32,10 +32,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.whatsappclone.R
-import com.example.whatsappclone.screeens.registerScreen.CallbackNavControllerToHomeScreen
 import com.example.whatsappclone.ui.theme.GreenButtons
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
 
+
+
+typealias CallbackNavControllerToHomeScreen = (String) -> Unit
 @Composable
 fun RegisterUserNameScreen(
     registerUserNameScreenViewModel: RegisterUserNameScreenViewModel,
