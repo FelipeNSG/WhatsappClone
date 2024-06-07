@@ -2,6 +2,7 @@ package com.example.whatsappclone.screeens.homeScreen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,13 +14,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,7 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,23 +41,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import com.example.whatsappclone.components.AppBarHomeScreen
-/*import com.example.whatsappclone.components.UserDetails*/
+import com.example.whatsappclone.components.UserDetails
 import com.example.whatsappclone.components.UserImage
 import com.example.whatsappclone.data.moldel.ChatBoxObject
+import com.example.whatsappclone.ui.theme.GreenButtons
 import com.example.whatsappclone.ui.theme.GreenWhatsapp
+import com.example.whatsappclone.ui.theme.colorGreyChat
 
 typealias CallbackNavControllerNavigationToChatScreen = (String) -> Unit
+typealias CallbackNavControllerNavigationToLoginScreen = () -> Unit
+typealias CallbackRemoveSession = () -> Unit
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel,
+    homeViewModel
+    : HomeViewModel,
     callbackNavController: CallbackNavControllerNavigationToChatScreen,
+    callbackNavControllerNavigationToLoginScreen: CallbackNavControllerNavigationToLoginScreen
 ) {
+    LaunchedEffect(Unit) {
+        homeViewModel.sendDataToDataStore()
+    }
+    val chatList by homeViewModel.getChatList().collectAsStateWithLifecycle(emptyList())
     Scaffold(
-        topBar = { AppBarHomeScreen() },
+        topBar = {
+            AppBarHomeScreen(
+                homeViewModel.logUser,
+                callbackNavControllerNavigationToLoginScreen
+            )
+            {
+                homeViewModel.logOutFirebaseAuth()
+                homeViewModel.removeSessionToDataStore()
+            }
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -66,7 +92,12 @@ fun HomeScreen(
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-                ChatsHomeScreen(viewModel)
+                ChatsHomeScreen(
+                    homeViewModel,
+                    chatList.sortedByDescending { it.messages.last().timeStamp },
+                    homeViewModel.logUser,
+                    callbackNavController
+                )
             }
         }
         Box(
@@ -75,39 +106,93 @@ fun HomeScreen(
                 .padding(end = 25.dp, bottom = 40.dp),
             contentAlignment = Alignment.BottomEnd,
         ) {
-            AddContactButton(callbackNavController, viewModel)
+            AddContactButton(callbackNavController, homeViewModel)
         }
     }
 }
 
 @Composable
-fun SearchBarHomeScreen() {
-    TextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp),
-        value = "",
-        onValueChange = {},
-        placeholder = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-            ) {
+fun SearchBarHomeScreen(
+    viewModel: HomeViewModel,
+    chatList: List<ChatBoxObject>,
+    callbackNavController: CallbackNavControllerNavigationToChatScreen,
+    callbackText: (TextFieldValue) -> Unit
+) {
+    val textInput = remember { mutableStateOf(TextFieldValue("")) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            value = textInput.value,
+            onValueChange = { newText ->
+                textInput.value = newText
+                callbackText(textInput.value)
+            },
+            placeholder = {
+                Text(text = "Search...")
+            },
+            trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Icon",
                     tint = Color.Gray,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.clickable {
+                        if (textInput.value.text.length >= 9) {
+                            viewModel.verify(
+                                logUser = viewModel.logUser,
+                                numberPhoneContact = textInput.value.text
+                            ) { statedResult ->
+                                when (statedResult) {
+                                    HomeViewModel.HomeScreenStated.CorrectNumber -> {
+                                        callbackNavController.invoke(
+                                            "/${textInput.value.text}/${viewModel.logUser}/${viewModel.logUser}/noIdDocument"
+                                        )
+                                    }
+
+                                    HomeViewModel.HomeScreenStated.TheChatAlreadyExist -> {
+                                        val chatItem = chatList.filter {
+                                            ((it.dataUser1.numberPhone.toString() == viewModel.logUser ||
+                                                    it.dataUser2.numberPhone.toString() == viewModel.logUser)
+                                                    &&
+                                                    (it.dataUser1.numberPhone.toString() == textInput.value.text ||
+                                                            it.dataUser2.numberPhone.toString() == textInput.value.text))
+                                        }
+                                    }
+
+                                    else -> {
+                                        textInput.value = TextFieldValue("")
+                                    }
+                                }
+                            }
+                        }
+                    },
                 )
-                Text(text = "Search...")
-            }
-        },
-        shape = CircleShape,
-        singleLine = true,
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            },
+            shape = CircleShape,
+            singleLine = true,
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedContainerColor = colorGreyChat,
+                unfocusedContainerColor = colorGreyChat
+
+            ),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    Unit
+                }
+            )
         )
-    )
+    }
 }
 
 @Composable
@@ -136,12 +221,17 @@ fun ProfileStatus() {
     }
 }
 
-
 @Composable
-fun ChatsHomeScreen(homeViewModel: HomeViewModel) {
-    val notes = homeViewModel.userList.collectAsState(
-        emptyList()
-    )
+fun ChatsHomeScreen(
+    viewModel: HomeViewModel,
+    chatList: List<ChatBoxObject>,
+    logUser: String,
+    callbackNavController: CallbackNavControllerNavigationToChatScreen
+) {
+    var searchContactInChatList = chatList
+    val searchedText = remember {
+        mutableStateOf(TextFieldValue(""))
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -150,24 +240,86 @@ fun ChatsHomeScreen(homeViewModel: HomeViewModel) {
         horizontalAlignment = Alignment.Start
     ) {
         item {
-            SearchBarHomeScreen()
+            SearchBarHomeScreen(
+                viewModel = viewModel,
+                chatList,
+                callbackNavController
+            ) { searchedText.value = it }
         }
         item {
-            ProfileStatus()
+            /*ProfileStatus()*/
         }
-        items(notes.value) { chatData ->
-            ChatListItem(chatData)
+        if (searchContactInChatList.isNotEmpty()) {
+            items(searchContactInChatList.size) { chatData ->
+                if ((searchContactInChatList[chatData].dataUser1.numberPhone.toString() != logUser) &&
+                    (searchContactInChatList[chatData].dataUser1.numberPhone.toString()
+                        .startsWith(
+                            searchedText.value.text,
+                            ignoreCase = true
+                        ) || searchContactInChatList[chatData].dataUser1
+                        .userAlias.startsWith(searchedText.value.text, ignoreCase = true))
+                ) {
+                    ChatListItem(
+                        searchContactInChatList[chatData],
+                        logUser,
+                        callbackNavController
+                    )
+                } else {
+                    if (searchContactInChatList[chatData].dataUser2.numberPhone.toString()
+                            .startsWith(
+                                searchedText.value.text,
+                                ignoreCase = true
+                            ) || searchContactInChatList[chatData].dataUser2
+                            .userAlias.startsWith(searchedText.value.text, ignoreCase = true)
+                    ) {
+                        ChatListItem(
+                            searchContactInChatList[chatData],
+                            logUser,
+                            callbackNavController
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-fun ChatListItem(chatData: ChatBoxObject) {
-    Row(
+fun ChatListItem(
+    chatData: ChatBoxObject,
+    logUser: String,
+    callbackNavController: CallbackNavControllerNavigationToChatScreen
+) {
+    val contactName = remember {
+        mutableStateOf("")
+    }
+    val contactNumber = remember {
+        mutableStateOf("")
+    }
 
+    if (logUser.toLong() != chatData.dataUser1.numberPhone) {
+        contactName.value = chatData.dataUser1.userAlias
+        contactNumber.value = chatData.dataUser1.numberPhone.toString()
+    } else {
+        contactName.value = chatData.dataUser2.userAlias
+        contactNumber.value = chatData.dataUser2.numberPhone.toString()
+    }
+
+    Row(
+        modifier = Modifier.clickable {
+            callbackNavController.invoke(
+                "/${contactNumber.value}/${contactName.value}/${logUser}/${chatData.chatId}"
+            )
+        }
     ) {
-        UserImage(chatData.userAccount1.userImage)
-       /* UserDetails(chatData)*/
+        UserImage(
+            chatData,
+            logUser,
+        )
+        UserDetails(
+            chatData,
+            logUser
+        )
     }
 }
 
@@ -224,6 +376,8 @@ fun OnClickContactAddButton(
     if (openDialog.value) {
 
         AlertDialog(
+            containerColor = Color.White,
+            textContentColor = Color.White,
             onDismissRequest = {
                 openDialog.value = false
                 openDialogCallBack(openDialog.value)
@@ -243,13 +397,19 @@ fun OnClickContactAddButton(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     TextField(
+
                         value = contactToAdd.value,
                         onValueChange = {
                             contactToAdd.value = it
                         },
                         placeholder = {
                             Text(text = "Enter the number phone")
-                        }
+                        },
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = GreenButtons,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        )
                     )
                     TextField(
                         value = name.value,
@@ -258,7 +418,12 @@ fun OnClickContactAddButton(
                         },
                         placeholder = {
                             Text(text = "Name")
-                        }
+                        },
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = GreenButtons,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        )
                     )
                 }
             },
@@ -268,21 +433,27 @@ fun OnClickContactAddButton(
                         openDialog.value = false
                         openDialogCallBack(openDialog.value)
                         textOfNote = ""
-                        viewModel.userConsulting(
+                        viewModel.verify(
+                            logUser = viewModel.logUser,
                             numberPhoneContact = contactToAdd.value
-                        ) { requestStated ->
-                            when (requestStated) {
+                        ) { statedResult ->
+                            when (statedResult) {
                                 HomeViewModel.HomeScreenStated.CorrectNumber -> {
-                                    callbackNavController.invoke("/${contactToAdd.value}/${name.value}/${viewModel.logUser}")
+                                    callbackNavController.invoke(
+                                        "/${contactToAdd.value}/${name.value}/${viewModel.logUser}/noIdDocument"
+                                    )
                                 }
+
                                 else -> {
-                                    Unit
+                                    openDialog.value = false
+                                    openDialogCallBack(openDialog.value)
+                                    textOfNote = ""
                                 }
                             }
                         }
                     },
-
-                    ) {
+                    colors = ButtonDefaults.buttonColors(GreenWhatsapp)
+                ) {
                     Text(text = "APPLY")
                 }
             },
@@ -293,8 +464,8 @@ fun OnClickContactAddButton(
                         openDialogCallBack(openDialog.value)
                         textOfNote = ""
                     },
-
-                    ) {
+                    colors = ButtonDefaults.buttonColors(GreenWhatsapp)
+                ) {
                     Text(text = "CANCEL")
                 }
             },

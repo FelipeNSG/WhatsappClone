@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.MoreVert
@@ -21,6 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,7 +35,12 @@ import com.example.whatsappclone.ui.theme.fontFamilyMonserrat
 
 
 @Composable
-fun TopAppBarChatScreen(contactName:String) {
+fun TopAppBarChatScreen(contactName: String, imageUrl:String, callBackNavigationBack: () -> Unit) {
+    val profileImageUrl = remember {
+        mutableStateOf("")
+    }
+
+    profileImageUrl.value = imageUrl
     Row(
         Modifier
             .fillMaxWidth()
@@ -41,10 +48,10 @@ fun TopAppBarChatScreen(contactName:String) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(
-            onClick = { }
+            onClick = { callBackNavigationBack.invoke()}
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Icon ArrowBack"
             )
         }
@@ -55,7 +62,7 @@ fun TopAppBarChatScreen(contactName:String) {
                 shape = CircleShape,
             ) {
                 SubcomposeAsyncImage(
-                    model = "https://picsum.photos/id/235/200/300",
+                    model = profileImageUrl.value,
                     contentDescription = "Profile Picture",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

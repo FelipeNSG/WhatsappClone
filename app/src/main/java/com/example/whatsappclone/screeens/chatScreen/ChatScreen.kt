@@ -1,64 +1,85 @@
 package com.example.whatsappclone.screeens.chatScreen
 
+import android.app.Dialog
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.content.MediaType
+import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text2.BasicTextField2
+import androidx.compose.foundation.text2.input.TextFieldLineLimits
+import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.SentimentSatisfied
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import com.example.whatsappclone.components.TopAppBarChatScreen
+import com.example.whatsappclone.data.moldel.Message
+import com.example.whatsappclone.data.moldel.MessageType
 import com.example.whatsappclone.ui.theme.GreenButtons
-import com.example.whatsappclone.ui.theme.colorBlueChat
-import com.example.whatsappclone.ui.theme.colorButtonBlue
 import com.example.whatsappclone.ui.theme.colorChatGreen
 import com.example.whatsappclone.ui.theme.colorGreyChat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.whatsappclone.utils.Constants.ALL_IMAGES
+
 
 @Composable
-fun ChatScreen(chatScreenViewModel: ChatScreenViewModel) {
-   ChatScreenToRegisterNewChat(chatScreenViewModel = chatScreenViewModel)
-}
-
-@Composable
-fun ChatScreenToRegisterNewChat(chatScreenViewModel: ChatScreenViewModel){
+fun ChatScreen(
+    chatScreenViewModel: ChatScreenViewModel,
+    callBackNavigationBack: () -> Unit
+) {
+    val profileImage = remember {
+        mutableStateOf("")
+    }
+    LaunchedEffect(Unit) { profileImage.value = chatScreenViewModel.getImage() }
     Scaffold(
-        topBar = { TopAppBarChatScreen(chatScreenViewModel.userNameContactToAdd) },
+        topBar = {
+            TopAppBarChatScreen(
+                chatScreenViewModel.userAlias,
+                profileImage.value,
+                callBackNavigationBack
+            )
+        },
         bottomBar = {
             TextFieldChatAndAdjacentButtons(chatScreenViewModel)
         }
@@ -75,24 +96,50 @@ fun ChatScreenToRegisterNewChat(chatScreenViewModel: ChatScreenViewModel){
     }
 }
 
+
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
+
 fun TextFieldChatAndAdjacentButtons(
     chatScreenViewModel: ChatScreenViewModel,
 ) {
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { imageUri ->
+        imageUri?.let {
+            chatScreenViewModel.addImageToStorage(imageUri)
+        }
+    }
+    val textState = rememberTextFieldState()
+
     val showButtonSend = remember {
         mutableStateOf(false)
     }
-    val message = rememberSaveable {
+
+    val gifOrImageMessage = remember {
+        mutableStateOf(Message())
+    }
+
+    val uriMessage = remember {
         mutableStateOf("")
     }
+
+    val sendGifOrImage = remember {
+        mutableStateOf(false)
+    }
+
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
+
         IconButton(
             modifier = Modifier.size(45.dp),
             onClick = {
+                //Acceder a Galeria
+                galleryLauncher.launch(ALL_IMAGES)
             }
         ) {
             Icon(
@@ -102,62 +149,84 @@ fun TextFieldChatAndAdjacentButtons(
                 tint = GreenButtons
             )
         }
-        TextField(
+        BasicTextField2(
             modifier = Modifier
                 .width(240.dp)
-                .height(53.dp)
-                .clickable {
-
-                },
-            value = message.value,
-            onValueChange = {
-                message.value = it
-                showButtonSend.value = message.value.isNotEmpty()
-            },
-            placeholder = {
-                Row {
-                    Text(
-                        text = "Type message...",
-                        modifier = Modifier.weight(1f)
+                .height(42.dp)
+                .clip(RoundedCornerShape(32.dp))
+                .background(colorGreyChat)
+                .padding(12.dp)
+                .receiveContent(MediaType.Image) { content ->
+                    uriMessage.value = content.platformTransferableContent?.linkUri.toString()
+                    gifOrImageMessage.value = Message(
+                        uriImage = uriMessage.value,
+                        type = MessageType.STICKER_OR_GIFT,
+                        user = chatScreenViewModel.userLogPhoneAccount,
+                        content = "Image"
                     )
-                    IconButton(onClick = {
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.SentimentSatisfied,
-                            contentDescription = "Icon Face",
-                            tint = GreenButtons
-                        )
+                    sendGifOrImage.value = true
+                    null
+                },
+            state = textState,
+            lineLimits = TextFieldLineLimits.SingleLine,
+            decorator = { innerTextField ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Box(Modifier.weight(1f)) {
+                        if (textState.text.isEmpty()) {
+                            Text(
+                                text = "Type message...",
+                                color = Color.Gray
+                            )
+                        }
+                        innerTextField()
+                        showButtonSend.value = textState.text.isNotBlank()
+
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Icon(
+                        imageVector = Icons.Default.SentimentSatisfied,
+                        contentDescription = "Face Icon",
+                        tint = GreenButtons
+                    )
                 }
-            },
-            shape = CircleShape,
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            )
+            }
         )
 
-        if (!showButtonSend.value){
-            ShowButtonsCameraAndMicrophone()
-
-        }else{
-            ShowSendButton(
+        if (sendGifOrImage.value) {
+            SendGifOrImage(
                 chatScreenViewModel = chatScreenViewModel,
-                contentMessage = message.value
-            ){
-                message.value = it
-            }
+                contentMessage = gifOrImageMessage.value
+            )
+            sendGifOrImage.value = false
         }
 
+
+        if (!showButtonSend.value) {
+            ShowButtonsCameraAndMicrophone()
+
+        } else {
+            ShowSendButton(
+                chatScreenViewModel = chatScreenViewModel,
+                contentMessage = textState.text.toString()
+            ) {
+                textState.edit {
+                    this.replace(0, textState.text.length, it)
+                }
+            }
+        }
     }
 }
 
 @Composable
 fun ShowButtonsCameraAndMicrophone(
-
 ) {
-
     IconButton(
         modifier = Modifier.size(40.dp),
         onClick = { }
@@ -180,46 +249,118 @@ fun ShowButtonsCameraAndMicrophone(
             tint = Color.Gray
         )
     }
+}
+
+@Composable
+fun SendGifOrImage(
+    chatScreenViewModel: ChatScreenViewModel,
+    contentMessage: Message
+) {
+    println(contentMessage.content)
+    println(contentMessage.type)
+    val chatExist = remember {
+        mutableStateOf(false)
+    }
+    if (!chatExist.value) {
+        chatScreenViewModel.checkIfAChatAlreadyExists(
+            chatScreenViewModel.userLogPhoneAccount,
+            chatScreenViewModel.numberContact,
+            chatScreenViewModel.userAlias,
+            contentMessage,
+        ) { statedFetchChat ->
+            when (statedFetchChat) {
+                ChatScreenViewModel.ChatScreenStated.FoundChat -> {
+                    chatScreenViewModel.sendMessage(
+                        chatScreenViewModel.userLogPhoneAccount,
+                        chatScreenViewModel.numberContact,
+                        contentMessage
+                    )
+                    chatExist.value = true
+                }
+
+                ChatScreenViewModel.ChatScreenStated.NotFountChat -> {
+                    chatExist.value = true
+                }
+
+                else -> {
+                    Unit
+                }
+            }
+        }
+
+    } else {
+        chatScreenViewModel.sendMessage(
+            chatScreenViewModel.userLogPhoneAccount,
+            chatScreenViewModel.numberContact,
+            contentMessage
+        )
+    }
 
 }
+
 
 @Composable
 fun ShowSendButton(
     chatScreenViewModel: ChatScreenViewModel,
-    contentMessage:String,
+    contentMessage: String,
     messageCallBack: (String) -> Unit
 ) {
-    val scope = CoroutineScope(Dispatchers.IO)
+    val chatExist = remember {
+        mutableStateOf(false)
+    }
+    println(chatExist.value)
     IconButton(
         modifier = Modifier.size(40.dp),
         onClick = {
-            scope.launch {
-                chatScreenViewModel.createChatBox(
-                    userLog = chatScreenViewModel.userPhoneAccount,
-                    contact = chatScreenViewModel.numberContactToAdd,
-                    contactName = chatScreenViewModel.userNameContactToAdd,
-                    contentMessage = contentMessage
+            if (!chatExist.value) {
+                println(chatScreenViewModel.userLogPhoneAccount)
+                println(chatScreenViewModel.numberContact)
+                chatScreenViewModel.checkIfAChatAlreadyExists(
+                    chatScreenViewModel.userLogPhoneAccount,
+                    chatScreenViewModel.numberContact,
+                    chatScreenViewModel.userAlias,
+                    Message(
+                        content = contentMessage,
+                        user = chatScreenViewModel.userLogPhoneAccount
+                    ),
+                ) { statedFetchChat ->
+                    when (statedFetchChat) {
+                        ChatScreenViewModel.ChatScreenStated.FoundChat -> {
+                            chatScreenViewModel.sendMessage(
+                                chatScreenViewModel.userLogPhoneAccount,
+                                chatScreenViewModel.numberContact,
+                                Message(
+                                    user = chatScreenViewModel.userLogPhoneAccount,
+                                    content = contentMessage
+                                )
+                            )
+                            chatExist.value = true
+                        }
+
+                        ChatScreenViewModel.ChatScreenStated.NotFountChat -> {
+                            chatExist.value = true
+                        }
+
+                        else -> {
+                            Unit
+                        }
+                    }
+                }
+            } else {
+                chatScreenViewModel.sendMessage(
+                    chatScreenViewModel.userLogPhoneAccount,
+                    chatScreenViewModel.numberContact,
+                    Message(
+                        user = chatScreenViewModel.userLogPhoneAccount,
+                        content = contentMessage
+                    )
                 )
             }
             messageCallBack("")
-            chatScreenViewModel.getChatsBox(chatScreenViewModel.userPhoneAccount, chatScreenViewModel.numberContactToAdd){ statedFetchChat ->
-                when(statedFetchChat){
-                    ChatScreenViewModel.ChatScreenStated.ErrorConnexion -> {
-                    }
-                    ChatScreenViewModel.ChatScreenStated.FoundChat -> {
-                    }
-                    ChatScreenViewModel.ChatScreenStated.Loading -> {
-
-                    }
-                    ChatScreenViewModel.ChatScreenStated.NotFountChat -> {
-
-                    }
-                }
-            }
         }
     ) {
         Icon(
-            imageVector = Icons.Filled.Send,
+            imageVector = Icons.AutoMirrored.Filled.Send,
             contentDescription = "Button Send",
             modifier = Modifier.size(35.dp),
             tint = GreenButtons
@@ -228,77 +369,38 @@ fun ShowSendButton(
 }
 
 @Composable
-fun ChatBox(chatScreenViewModel: ChatScreenViewModel) {
-
-    LazyColumn() {
-        item {
-
+fun ChatBox(
+    chatScreenViewModel: ChatScreenViewModel,
+) {
+    val chatList by chatScreenViewModel.getChat().collectAsState(emptyList())
+    if (chatList.isNotEmpty()) {
+        LazyColumn(
+            reverseLayout = true
+        ) {
+            items(chatList.first().messages.size) {
+                if (chatScreenViewModel.userLogPhoneAccount == chatList.first().messages[(chatList.first().messages.size) - (it + 1)].user) {
+                    ChatMessageTest1(message = chatList.first().messages[(chatList.first().messages.size) - (it + 1)])
+                } else {
+                    if (chatScreenViewModel.userLogPhoneAccount == chatList.first().dataUser1.numberPhone.toString()) {
+                        ChatTesting2(
+                            message = chatList.first().messages[(chatList.first().messages.size) - (it + 1)],
+                            chatList.first().dataUser1.userImage
+                        )
+                    } else {
+                        ChatTesting2(
+                            message = chatList.first().messages[(chatList.first().messages.size) - (it + 1)],
+                            chatList.first().dataUser2.userImage
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-fun ChatMessageTest1(chatScreenViewModel: ChatScreenViewModel) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 5.dp),
-        horizontalArrangement = Arrangement.Center
+fun ChatMessageTest1(message: Message) {
 
-    ) {
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = colorButtonBlue
-            ),
-            shape = CircleShape
-        ) {
-            Text(
-                text = "21 JUNE 2020",
-                modifier = Modifier.padding(10.dp),
-                color = Color.White
-            )
-        }
-    }
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(5.dp),
-        horizontalArrangement = Arrangement.End,
-    ) {
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = colorChatGreen
-            ),
-        ) {
-            Text(
-                text = "Anything",
-                modifier = Modifier.padding(10.dp)
-            )
-        }
-    }
-    /*  Row(
-          modifier = Modifier
-              .fillMaxSize()
-              .padding(5.dp),
-          horizontalArrangement = Arrangement.End,
-      ) {
-          Card(
-              shape = RoundedCornerShape(
-                  topStart = 12.dp,
-                  topEnd = 12.dp,
-                  bottomStart = 12.dp,
-                  bottomEnd = 0.dp
-              ),
-              colors = CardDefaults.cardColors(
-                  containerColor = colorChatGreen
-              ),
-          ) {
-              Text(
-                  text = "Are you there?",
-                  modifier = Modifier.padding(10.dp)
-              )
-          }
-      }*/
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -306,7 +408,7 @@ fun ChatMessageTest1(chatScreenViewModel: ChatScreenViewModel) {
         horizontalArrangement = Arrangement.End,
     ) {
         Text(
-            text = "9:10",
+            text = message.timeHour,
             color = Color.Gray,
             fontSize = 10.sp,
             modifier = Modifier.padding(end = 10.dp)
@@ -315,35 +417,144 @@ fun ChatMessageTest1(chatScreenViewModel: ChatScreenViewModel) {
             imageVector = Icons.Filled.DoneAll,
             contentDescription = "check",
             modifier = Modifier.size(15.dp),
-            tint = colorBlueChat
+            tint = Color.LightGray
         )
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(5.dp),
+        horizontalArrangement = Arrangement.End,
+    ) {
+
+            when (message.type) {
+
+                MessageType.TEXT -> {
+
+                    Card(
+                        modifier = Modifier.widthIn(max = 270.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = colorChatGreen
+                        ),
+                    ) {
+                        Text(
+                            text = message.content,
+                            modifier = Modifier.padding(10.dp)
+                        )
+                    }
+                }
+                MessageType.STICKER_OR_GIFT -> {
+
+                    Card(
+
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Transparent
+                        ),
+                    ){
+                        SubcomposeAsyncImage(
+                            model = message.uriImage,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .heightIn(max = 200.dp)
+                                .width(165.dp),
+                        )
+                    }
+                }
+                else -> {
+
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Transparent
+                        ),
+                    ){
+                        SubcomposeAsyncImage(
+                            model = message.uriImage,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .heightIn(max = 200.dp)
+                                .width(170.dp)
+
+                        )
+                    }
+                }
+            }
+
     }
 }
 
 @Composable
-fun ChatTesting2() {
+fun ChatTesting2(message: Message, imageUrl: String) {
     Row(
         modifier = Modifier
             .fillMaxSize()
             .padding(5.dp),
         horizontalArrangement = Arrangement.Start,
     ) {
-        Card(
-            shape = RoundedCornerShape(
-                topStart = 12.dp,
-                topEnd = 12.dp,
-                bottomStart = 0.dp,
-                bottomEnd = 12.dp
-            ),
-            colors = CardDefaults.cardColors(
-                containerColor = colorGreyChat
-            ),
-        ) {
-            Text(
-                text = "Hello, yes im Here",
-                modifier = Modifier.padding(10.dp)
-            )
-        }
+
+            when (message.type) {
+                MessageType.TEXT -> {
+                    Card(
+                        modifier = Modifier.widthIn(max = 270.dp),
+                        shape = RoundedCornerShape(
+                            topStart = 12.dp,
+                            topEnd = 12.dp,
+                            bottomStart = 0.dp,
+                            bottomEnd = 12.dp
+                        ),
+                        colors = CardDefaults.cardColors(
+                            containerColor = colorGreyChat
+                        ),
+                    ){
+                        Text(
+                            text = message.content,
+                            modifier = Modifier.padding(10.dp)
+                        )
+                    }
+                }
+                MessageType.STICKER_OR_GIFT -> {
+                    Card(
+                        shape = RoundedCornerShape(
+                            topStart = 12.dp,
+                            topEnd = 12.dp,
+                            bottomStart = 0.dp,
+                            bottomEnd = 12.dp
+                        ),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Transparent
+                        ),
+                    ){
+                        SubcomposeAsyncImage(
+                            model = message.uriImage,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .heightIn(max = 200.dp)
+                                .width(165.dp),
+                        )
+                    }
+                }
+                else -> {
+                    Card(
+                        shape = RoundedCornerShape(
+                            topStart = 12.dp,
+                            topEnd = 12.dp,
+                            bottomStart = 0.dp,
+                            bottomEnd = 12.dp
+                        ),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Transparent
+                        ),
+                    ){
+                        SubcomposeAsyncImage(
+                            model = message.uriImage,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .heightIn(max = 200.dp)
+                                .width(170.dp),
+                        )
+                    }
+                }
+            }
+
     }
 
     Row(
@@ -358,20 +569,31 @@ fun ChatTesting2() {
             shape = CircleShape,
         ) {
             SubcomposeAsyncImage(
-                model = "https://picsum.photos/id/230/200/300",
+                model = imageUrl,
                 contentDescription = "User Photo",
                 modifier = Modifier
                     .clip(CircleShape)
                     .fillMaxSize(),
-                contentScale = ContentScale.Crop,
+                loading = {
+                    Column(
+                        modifier = Modifier
+                            .width(30.dp)
+                            .height(30.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
             )
         }
         Text(
-            text = "12:10",
+            text = message.timeHour,
             color = Color.Gray,
             fontSize = 10.sp,
             modifier = Modifier.padding(start = 10.dp)
         )
     }
+
 }
 

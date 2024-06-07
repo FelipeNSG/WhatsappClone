@@ -16,10 +16,19 @@ fun TextComponent(
     modifier: Modifier?,
     fontWeight: FontWeight? = FontWeight.Normal
 ) {
+    var text = value
+    text = if(value.length >28){
+
+        value.take(28).plus("...")
+    }
+    else {
+        value
+    }
+
     if (modifier != null) {
         Text(
             modifier = modifier,
-            text = value,
+            text =text,
             style = TextStyle(
                 fontSize = fontSize,
                 fontWeight = fontWeight,

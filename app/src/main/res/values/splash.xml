@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MyApp.MySplash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#FFFFFF</item>
+        <item name="windowSplashScreenAnimatedIcon">
+            @mipmap/ic_launcher_whatsapp_image_foreground
+        </item>
+        <item name="postSplashScreenTheme">@style/Theme.WhatsappClone</item>
+    </style>
+</resources>
