@@ -12,3 +12,8 @@ WhatsappClone application is designed for educational purposes, it implements so
 - Firebase
 - Coil-kt
 - Material Design
+
+  ## Screenshots & Record Screen
+| <!-- -->      | <!-- -->        |
+|:-------------:|:---------------:|
+|![](https://github.com/FelipeNSG/MyMovieApp/assets/150075421/8ab41d98-389c-44bc-9e9d-702846ac0a8a)|![](https://github.com/FelipeNSG/MyMovieApp/assets/150075421/9c5af7e5-8702-4545-bb05-7f63989afb45)|
