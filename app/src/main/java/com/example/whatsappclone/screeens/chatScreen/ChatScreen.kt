@@ -1,9 +1,11 @@
 package com.example.whatsappclone.screeens.chatScreen
 
+import android.app.Dialog
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.layout.Arrangement
@@ -470,7 +472,8 @@ fun ChatMessageTest1(message: Message) {
                             contentDescription = null,
                             modifier = Modifier
                                 .heightIn(max = 200.dp)
-                                .width(170.dp),
+                                .width(170.dp)
+
                         )
                     }
                 }

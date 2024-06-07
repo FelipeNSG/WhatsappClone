@@ -94,7 +94,7 @@ fun HomeScreen(
             ) {
                 ChatsHomeScreen(
                     homeViewModel,
-                    chatList.sortedBy { it.messages.last().timeStamp },
+                    chatList.sortedByDescending { it.messages.last().timeStamp },
                     homeViewModel.logUser,
                     callbackNavController
                 )
@@ -229,7 +229,7 @@ fun ChatsHomeScreen(
     callbackNavController: CallbackNavControllerNavigationToChatScreen
 ) {
     var searchContactInChatList = chatList
-    var searchedText = remember {
+    val searchedText = remember {
         mutableStateOf(TextFieldValue(""))
     }
     LazyColumn(
@@ -247,7 +247,7 @@ fun ChatsHomeScreen(
             ) { searchedText.value = it }
         }
         item {
-            ProfileStatus()
+            /*ProfileStatus()*/
         }
         if (searchContactInChatList.isNotEmpty()) {
             items(searchContactInChatList.size) { chatData ->
@@ -260,7 +260,7 @@ fun ChatsHomeScreen(
                         .userAlias.startsWith(searchedText.value.text, ignoreCase = true))
                 ) {
                     ChatListItem(
-                        searchContactInChatList[chatList.size - (chatData + 1)],
+                        searchContactInChatList[chatData],
                         logUser,
                         callbackNavController
                     )
@@ -273,7 +273,7 @@ fun ChatsHomeScreen(
                             .userAlias.startsWith(searchedText.value.text, ignoreCase = true)
                     ) {
                         ChatListItem(
-                            searchContactInChatList[chatList.size - (chatData + 1)],
+                            searchContactInChatList[chatData],
                             logUser,
                             callbackNavController
                         )
