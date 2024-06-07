@@ -24,4 +24,6 @@ https://github.com/FelipeNSG/MyMovieApp/assets/150075421/7c8ec89a-b58c-4259-b16e
 
 https://github.com/FelipeNSG/MyMovieApp/assets/150075421/782871d1-010d-4563-a9a6-370968b14aea
 
+## Contact
+- If you any question, you can send me an email at felipe.sanchez.innotechlabs@gmail.com, I'll try to answer as quick as I can.
 
